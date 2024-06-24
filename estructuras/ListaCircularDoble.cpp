@@ -88,3 +88,25 @@ void ListaCircularDoble::generarReporte(const std::string& nombreArchivo) {
     std::string comando = "dot -Tpng " + nombreArchivo + " -o lista_circular_doble.png";
     system(comando.c_str());
 }
+Avion* ListaCircularDoble::buscarYEliminar(const std::string& numeroRegistro) {
+    if (cabeza == nullptr) return nullptr;
+
+    NodoLCD* actual = cabeza;
+    do {
+        if (actual->dato.getNumeroDeRegistro() == numeroRegistro) {
+            if (actual == cabeza && actual->siguiente == cabeza) {
+                cabeza = nullptr;
+            } else {
+                actual->anterior->siguiente = actual->siguiente;
+                actual->siguiente->anterior = actual->anterior;
+                if (actual == cabeza) cabeza = actual->siguiente;
+            }
+            Avion* avionEncontrado = new Avion(actual->dato);
+            delete actual;
+            return avionEncontrado;
+        }
+        actual = actual->siguiente;
+    } while (actual != cabeza);
+
+    return nullptr;
+}
