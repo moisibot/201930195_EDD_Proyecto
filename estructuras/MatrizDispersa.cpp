@@ -1,7 +1,6 @@
 #include "MatrizDispersa.h"
 #include <iostream>
 #include <fstream>
-
 NodoMatriz::NodoMatriz(const std::string& vuelo, const std::string& ciudadDestino, Piloto* piloto)
         : vuelo(vuelo), ciudadDestino(ciudadDestino), piloto(piloto), derecha(nullptr), abajo(nullptr) {}
 MatrizDispersa::MatrizDispersa() : filas(nullptr), columnas(nullptr) {}
@@ -58,7 +57,6 @@ void MatrizDispersa::insertar(const std::string& vuelo, const std::string& ciuda
     NodoMatriz* fila = buscarOCrearFila(vuelo);
     NodoMatriz* columna = buscarOCrearColumna(ciudadDestino);
     NodoMatriz* nuevo = new NodoMatriz(vuelo, ciudadDestino, piloto);
-    // Insertar en la fila
     if (fila->derecha == nullptr || fila->derecha->ciudadDestino > ciudadDestino) {
         nuevo->derecha = fila->derecha;
         fila->derecha = nuevo;
@@ -70,7 +68,6 @@ void MatrizDispersa::insertar(const std::string& vuelo, const std::string& ciuda
         nuevo->derecha = actual->derecha;
         actual->derecha = nuevo;
     }
-    // Insertar en la columna
     if (columna->abajo == nullptr || columna->abajo->vuelo > vuelo) {
         nuevo->abajo = columna->abajo;
         columna->abajo = nuevo;
@@ -99,13 +96,11 @@ void MatrizDispersa::eliminar(const std::string& vuelo, const std::string& ciuda
         actual = actual->derecha;
     }
     if (actual == nullptr) return;
-    // Eliminar de la fila
     if (prevActual == nullptr) {
         fila->derecha = actual->derecha;
     } else {
         prevActual->derecha = actual->derecha;
     }
-    // Eliminar de la columna
     NodoMatriz* columna = columnas;
     NodoMatriz* prevColumna = nullptr;
     while (columna != nullptr && columna->ciudadDestino != ciudadDestino) {
@@ -127,9 +122,7 @@ void MatrizDispersa::eliminar(const std::string& vuelo, const std::string& ciuda
             }
         }
     }
-
     delete actual;
-    // Eliminar fila si está vacía
     if (fila->derecha == nullptr) {
         if (prevFila == nullptr) {
             filas = fila->abajo;
@@ -138,7 +131,6 @@ void MatrizDispersa::eliminar(const std::string& vuelo, const std::string& ciuda
         }
         delete fila;
     }
-    // Eliminar columna si está vacía
     if (columna != nullptr && columna->abajo == nullptr) {
         if (prevColumna == nullptr) {
             columnas = columna->derecha;
@@ -184,9 +176,7 @@ void MatrizDispersa::generarReporte(const std::string& nombreArchivo) {
     std::ofstream archivo(nombreArchivo);
     archivo << "digraph MatrizDispersa {\n";
     archivo << "node [shape=record];\n";
-
     archivo << "raiz [label=\"Raíz\"];\n";
-
     NodoMatriz* columnaActual = columnas;
     while (columnaActual != nullptr) {
         archivo << "col_" << columnaActual->ciudadDestino << " [label=\"" << columnaActual->ciudadDestino << "\"];\n";
@@ -196,12 +186,10 @@ void MatrizDispersa::generarReporte(const std::string& nombreArchivo) {
         }
         columnaActual = columnaActual->derecha;
     }
-
     NodoMatriz* filaActual = filas;
     while (filaActual != nullptr) {
         archivo << "fila_" << filaActual->vuelo << " [label=\"" << filaActual->vuelo << "\"];\n";
         archivo << "raiz -> fila_" << filaActual->vuelo << ";\n";
-
         NodoMatriz* elementoActual = filaActual->derecha;
         while (elementoActual != nullptr) {
             archivo << "nodo_" << elementoActual->vuelo << "_" << elementoActual->ciudadDestino
@@ -212,16 +200,13 @@ void MatrizDispersa::generarReporte(const std::string& nombreArchivo) {
                     << "_" << elementoActual->ciudadDestino << ";\n";
             elementoActual = elementoActual->derecha;
         }
-
         if (filaActual->abajo != nullptr) {
             archivo << "fila_" << filaActual->vuelo << " -> fila_" << filaActual->abajo->vuelo << ";\n";
         }
         filaActual = filaActual->abajo;
     }
-
     archivo << "}\n";
     archivo.close();
-
     std::string comando = "dot -Tpng " + nombreArchivo + " -o matriz_dispersa.png";
     system(comando.c_str());
 }

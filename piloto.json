@@ -1,0 +1,34 @@
+[
+  {
+    "nombre": "Maria Rodriguez",
+    "nacionalidad": "España",
+    "numero_de_id": "E87654321",
+    "vuelo": "B737",
+    "horas_de_vuelo": 3500,
+    "tipo_de_licencia": "PPL"
+  },
+  {
+    "nombre": "Hans Mueller",
+    "nacionalidad": "Alemania",
+    "numero_de_id": "D23456789",
+    "vuelo": "A320",
+    "horas_de_vuelo": 2800,
+    "tipo_de_licencia": "CPL"
+  },
+  {
+    "nombre": "Yuki Tanaka",
+    "nacionalidad": "Japón",
+    "numero_de_id": "J98765432",
+    "vuelo": "B787",
+    "horas_de_vuelo": 5000,
+    "tipo_de_licencia": "PPL"
+  },
+  {
+    "nombre": "Carlos Sanchez",
+    "nacionalidad": "México",
+    "numero_de_id": "M34567890",
+    "vuelo": "E175",
+    "horas_de_vuelo": 1500,
+    "tipo_de_licencia": "CPL"
+  }
+]

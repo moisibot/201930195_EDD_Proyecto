@@ -2,7 +2,6 @@
 #define PROYECTO2CONTROLAEROPUERTO_LISTACIRCULARDOBLE_H
 #include "../Objetos/Avion.h"
 #include <iostream>
-
 class NodoLCD {
 public:
     Avion dato;
@@ -10,7 +9,6 @@ public:
     NodoLCD* anterior;
     NodoLCD(const Avion& avion);
 };
-
 class ListaCircularDoble {
 private:
     NodoLCD* cabeza;
@@ -23,5 +21,4 @@ public:
     void generarReporte(const std::string& nombreArchivo);
     Avion* buscarYEliminar(const std::string& numeroRegistro);
 };
-
 #endif //PROYECTO2CONTROLAEROPUERTO_LISTACIRCULARDOBLE_H

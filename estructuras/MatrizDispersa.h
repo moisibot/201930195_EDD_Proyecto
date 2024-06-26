@@ -13,8 +13,8 @@ public:
 };
 class MatrizDispersa {
 private:
-    NodoMatriz* filas;  // Cabecera de filas (vuelos)
-    NodoMatriz* columnas;  // Cabecera de columnas (ciudades destino)
+    NodoMatriz* filas;
+    NodoMatriz* columnas;
     NodoMatriz* buscarOCrearFila(const std::string& vuelo);
     NodoMatriz* buscarOCrearColumna(const std::string& ciudadDestino);
 public:

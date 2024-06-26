@@ -21,7 +21,6 @@ private:
     Avion* buscarYEliminarRecursivo(NodoB*& nodo, const std::string& numeroRegistro);
     void fusionarNodos(NodoB*& padre, int indice);
     void redistribuirNodos(NodoB* padre, int indice, bool izquierda);
-
 public:
     void generarReporte(const std::string &nombreArchivo);
     ArbolB(int t);

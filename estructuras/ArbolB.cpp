@@ -1,26 +1,20 @@
 #include "ArbolB.h"
 #include <iostream>
 #include <fstream>
-#include "sstream"
-
 NodoB::NodoB(int t) {
     claves = new Avion[2*t - 1];
     hijos = new NodoB*[2*t];
     numClaves = 0;
     esHoja = true;
 }
-
 NodoB::~NodoB() {
     delete[] claves;
     delete[] hijos;
 }
-
 ArbolB::ArbolB(int grado) : raiz(nullptr), t(grado) {}
-
 ArbolB::~ArbolB() {
     liberarMemoriaRecursiva(raiz);
 }
-
 void ArbolB::liberarMemoriaRecursiva(NodoB* nodo) {
     if (nodo != nullptr) {
         if (!nodo->esHoja) {
@@ -31,7 +25,6 @@ void ArbolB::liberarMemoriaRecursiva(NodoB* nodo) {
         delete nodo;
     }
 }
-
 void ArbolB::insertar(const Avion& avion) {
     if (raiz == nullptr) {
         raiz = new NodoB(t);
@@ -53,54 +46,41 @@ void ArbolB::dividirHijo(NodoB* padre, int indice, NodoB* hijo) {
     NodoB* nuevoNodo = new NodoB(t);
     nuevoNodo->esHoja = hijo->esHoja;
     nuevoNodo->numClaves = t - 1;
-
     for (int j = 0; j < t-1; j++) {
         nuevoNodo->claves[j] = hijo->claves[j+t];
     }
-
     if (!hijo->esHoja) {
         for (int j = 0; j < t; j++) {
             nuevoNodo->hijos[j] = hijo->hijos[j+t];
         }
     }
-
     hijo->numClaves = t - 1;
-
     for (int j = padre->numClaves; j >= indice+1; j--) {
         padre->hijos[j+1] = padre->hijos[j];
     }
-
     padre->hijos[indice+1] = nuevoNodo;
-
     for (int j = padre->numClaves-1; j >= indice; j--) {
         padre->claves[j+1] = padre->claves[j];
     }
-
     padre->claves[indice] = hijo->claves[t-1];
     padre->numClaves++;
 }
-
 void ArbolB::insertarNoLleno(NodoB* nodo, const Avion& avion) {
     int i = nodo->numClaves - 1;
-
     if (nodo->esHoja) {
         while (i >= 0 && avion.getNumeroDeRegistro() < nodo->claves[i].getNumeroDeRegistro()) {
             nodo->claves[i+1] = nodo->claves[i];
             i--;
         }
-
         nodo->claves[i+1] = avion;
         nodo->numClaves++;
     } else {
         while (i >= 0 && avion.getNumeroDeRegistro() < nodo->claves[i].getNumeroDeRegistro()) {
             i--;
         }
-
         i++;
-
         if (nodo->hijos[i]->numClaves == 2*t - 1) {
             dividirHijo(nodo, i, nodo->hijos[i]);
-
             if (avion.getNumeroDeRegistro() > nodo->claves[i].getNumeroDeRegistro()) {
                 i++;
             }
@@ -121,7 +101,6 @@ void ArbolB::imprimirNodo(NodoB* nodo, int nivel) {
         std::cout << nodo->claves[i].getNumeroDeRegistro() << " ";
     }
     std::cout << std::endl;
-
     if (!nodo->esHoja) {
         for (int i = 0; i <= nodo->numClaves; i++) {
             imprimirNodo(nodo->hijos[i], nivel + 1);
@@ -132,28 +111,23 @@ void ArbolB::generarReporte(const std::string& nombreArchivo) {
     std::ofstream archivo(nombreArchivo);
     archivo << "digraph ArbolB {\n";
     archivo << "node [shape=record];\n";
-
     if (raiz != nullptr) {
         generarReporteRecursivo(raiz, archivo);
     }
-
     archivo << "}\n";
     archivo.close();
-
     std::string comando = "dot -Tpng " + nombreArchivo + " -o arbol_b.png";
     system(comando.c_str());
 }
 
 void ArbolB::generarReporteRecursivo(NodoB* nodo, std::ofstream& archivo) {
     if (nodo == nullptr) return;
-
     archivo << "nodo" << nodo << " [label=\"";
     for (int i = 0; i < nodo->numClaves; i++) {
         archivo << nodo->claves[i].getNumeroDeRegistro();
         if (i < nodo->numClaves - 1) archivo << "|";
     }
     archivo << "\"];\n";
-
     if (!nodo->esHoja) {
         for (int i = 0; i <= nodo->numClaves; i++) {
             archivo << "nodo" << nodo << " -> nodo" << nodo->hijos[i] << ";\n";
@@ -167,16 +141,13 @@ Avion* ArbolB::buscarYEliminar(const std::string& numeroRegistro) {
 
 Avion* ArbolB::buscarYEliminarRecursivo(NodoB*& nodo, const std::string& numeroRegistro) {
     if (nodo == nullptr) return nullptr;
-
     int i = 0;
     while (i < nodo->numClaves && numeroRegistro > nodo->claves[i].getNumeroDeRegistro()) {
         i++;
     }
-
     if (i < nodo->numClaves && numeroRegistro == nodo->claves[i].getNumeroDeRegistro()) {
         Avion* avionEncontrado = new Avion(nodo->claves[i]);
         if (nodo->esHoja) {
-            // Eliminar directamente si es hoja
             for (int j = i; j < nodo->numClaves - 1; j++) {
                 nodo->claves[j] = nodo->claves[j + 1];
             }
@@ -186,21 +157,17 @@ Avion* ArbolB::buscarYEliminarRecursivo(NodoB*& nodo, const std::string& numeroR
                 raiz = nullptr;
             }
         } else {
-            // Si no es hoja, reemplazar con el sucesor y eliminar el sucesor
             Avion sucesor = nodo->hijos[i + 1]->claves[0];
             nodo->claves[i] = sucesor;
             return buscarYEliminarRecursivo(nodo->hijos[i + 1], sucesor.getNumeroDeRegistro());
         }
         return avionEncontrado;
     }
-
     if (nodo->esHoja) return nullptr;
-
     bool ultimoHijo = (i == nodo->numClaves);
     if (nodo->hijos[i]->numClaves < t) {
         redistribuirNodos(nodo, i, !ultimoHijo);
     }
-
     if (ultimoHijo && i > nodo->numClaves) {
         return buscarYEliminarRecursivo(nodo->hijos[i - 1], numeroRegistro);
     } else {
@@ -211,7 +178,6 @@ Avion* ArbolB::buscarYEliminarRecursivo(NodoB*& nodo, const std::string& numeroR
 void ArbolB::redistribuirNodos(NodoB* padre, int indice, bool izquierda) {
     NodoB* hijo = padre->hijos[indice];
     if (izquierda && indice > 0 && padre->hijos[indice - 1]->numClaves >= t) {
-        // Redistribuir con el hermano izquierdo
         NodoB* izq = padre->hijos[indice - 1];
         for (int i = hijo->numClaves; i > 0; i--) {
             hijo->claves[i] = hijo->claves[i - 1];
@@ -227,7 +193,6 @@ void ArbolB::redistribuirNodos(NodoB* padre, int indice, bool izquierda) {
         hijo->numClaves++;
         izq->numClaves--;
     } else if (!izquierda && indice < padre->numClaves && padre->hijos[indice + 1]->numClaves >= t) {
-        // Redistribuir con el hermano derecho
         NodoB* der = padre->hijos[indice + 1];
         hijo->claves[hijo->numClaves] = padre->claves[indice];
         padre->claves[indice] = der->claves[0];
@@ -243,7 +208,6 @@ void ArbolB::redistribuirNodos(NodoB* padre, int indice, bool izquierda) {
         hijo->numClaves++;
         der->numClaves--;
     } else {
-        // Fusionar nodos
         if (izquierda && indice > 0) {
             fusionarNodos(padre, indice - 1);
         } else {
@@ -255,30 +219,22 @@ void ArbolB::redistribuirNodos(NodoB* padre, int indice, bool izquierda) {
 void ArbolB::fusionarNodos(NodoB*& padre, int indice) {
     NodoB* hijo1 = padre->hijos[indice];
     NodoB* hijo2 = padre->hijos[indice + 1];
-
     hijo1->claves[t - 1] = padre->claves[indice];
-
     for (int i = 0; i < hijo2->numClaves; i++) {
         hijo1->claves[i + t] = hijo2->claves[i];
     }
-
     if (!hijo1->esHoja) {
         for (int i = 0; i <= hijo2->numClaves; i++) {
             hijo1->hijos[i + t] = hijo2->hijos[i];
         }
     }
-
     hijo1->numClaves = 2 * t - 1;
-
     for (int i = indice; i < padre->numClaves - 1; i++) {
         padre->claves[i] = padre->claves[i + 1];
         padre->hijos[i + 1] = padre->hijos[i + 2];
     }
-
     padre->numClaves--;
-
     delete hijo2;
-
     if (padre->numClaves == 0 && padre == raiz) {
         delete padre;
         raiz = hijo1;

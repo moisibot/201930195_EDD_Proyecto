@@ -1,15 +1,11 @@
 #include "ArbolBinarioBusqueda.h"
 #include <iostream>
 #include <fstream>
-
 NodoABB::NodoABB(const Piloto& piloto) : dato(piloto), izquierdo(nullptr), derecho(nullptr) {}
-
 ArbolBinarioBusqueda::ArbolBinarioBusqueda() : raiz(nullptr) {}
-
 ArbolBinarioBusqueda::~ArbolBinarioBusqueda() {
     destruirRecursivo(raiz);
 }
-
 void ArbolBinarioBusqueda::destruirRecursivo(NodoABB* nodo) {
     if (nodo != nullptr) {
         destruirRecursivo(nodo->izquierdo);
@@ -17,7 +13,6 @@ void ArbolBinarioBusqueda::destruirRecursivo(NodoABB* nodo) {
         delete nodo;
     }
 }
-
 void ArbolBinarioBusqueda::insertar(const Piloto& piloto) {
     insertarRecursivo(raiz, piloto);
 }
@@ -81,7 +76,6 @@ NodoABB* ArbolBinarioBusqueda::eliminarNodo(NodoABB* nodo, int horasDeVuelo) {
     } else if (horasDeVuelo > nodo->dato.getHorasDeVuelo()) {
         nodo->derecho = eliminarNodo(nodo->derecho, horasDeVuelo);
     } else {
-        // Nodo con solo un hijo o sin hijos
         if (nodo->izquierdo == nullptr) {
             NodoABB* temp = nodo->derecho;
             delete nodo;
@@ -91,11 +85,8 @@ NodoABB* ArbolBinarioBusqueda::eliminarNodo(NodoABB* nodo, int horasDeVuelo) {
             delete nodo;
             return temp;
         }
-        // Nodo con dos hijos: obtener el sucesor inorden (mínimo en el subárbol derecho)
         NodoABB* temp = encontrarMinimo(nodo->derecho);
-        // Copiar el contenido del sucesor inorden a este nodo
         nodo->dato = temp->dato;
-        // Eliminar el sucesor inorden
         nodo->derecho = eliminarNodo(nodo->derecho, temp->dato.getHorasDeVuelo());
     }
     return nodo;
@@ -111,27 +102,21 @@ NodoABB* ArbolBinarioBusqueda::encontrarMinimo(NodoABB* nodo) {
 void ArbolBinarioBusqueda::generarReporte(const std::string& nombreArchivo) {
     std::ofstream archivo(nombreArchivo);
     archivo << "digraph ArbolBinario {\n";
-
     generarReporteRecursivo(raiz, archivo);
-
     archivo << "}\n";
     archivo.close();
-
     std::string comando = "dot -Tpng " + nombreArchivo + " -o arbol_binario.png";
     system(comando.c_str());
 }
 
 void ArbolBinarioBusqueda::generarReporteRecursivo(NodoABB* nodo, std::ofstream& archivo) {
     if (nodo == nullptr) return;
-
     archivo << "nodo" << nodo << " [label=\"" << nodo->dato.getNombre() << "\\n"
             << nodo->dato.getHorasDeVuelo() << " horas\"];\n";
-
     if (nodo->izquierdo != nullptr) {
         archivo << "nodo" << nodo << " -> nodo" << nodo->izquierdo << ";\n";
         generarReporteRecursivo(nodo->izquierdo, archivo);
     }
-
     if (nodo->derecho != nullptr) {
         archivo << "nodo" << nodo << " -> nodo" << nodo->derecho << ";\n";
         generarReporteRecursivo(nodo->derecho, archivo);

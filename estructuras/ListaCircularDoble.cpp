@@ -1,14 +1,10 @@
 #include "ListaCircularDoble.h"
 #include <iostream>
 #include <fstream>
-
 NodoLCD::NodoLCD(const Avion& avion) : dato(avion), siguiente(nullptr), anterior(nullptr) {}
-
 ListaCircularDoble::ListaCircularDoble() : cabeza(nullptr) {}
-
 ListaCircularDoble::~ListaCircularDoble() {
     if (cabeza == nullptr) return;
-
     NodoLCD* actual = cabeza;
     do {
         NodoLCD* siguiente = actual->siguiente;
@@ -33,7 +29,6 @@ void ListaCircularDoble::insertar(const Avion& avion) {
 
 bool ListaCircularDoble::eliminar(const std::string& numeroRegistro) {
     if (cabeza == nullptr) return false;
-
     NodoLCD* actual = cabeza;
     do {
         if (actual->dato.getNumeroDeRegistro() == numeroRegistro) {
@@ -50,7 +45,6 @@ bool ListaCircularDoble::eliminar(const std::string& numeroRegistro) {
         }
         actual = actual->siguiente;
     } while (actual != cabeza);
-
     return false;
 }
 
@@ -59,7 +53,6 @@ void ListaCircularDoble::imprimir() {
         std::cout << "Lista vacía" << std::endl;
         return;
     }
-
     NodoLCD* actual = cabeza;
     do {
         std::cout << actual->dato.getNumeroDeRegistro() << " ";
@@ -71,7 +64,6 @@ void ListaCircularDoble::generarReporte(const std::string& nombreArchivo) {
     std::ofstream archivo(nombreArchivo);
     archivo << "digraph ListaCircularDoble {\n";
     archivo << "node [shape=record];\n";
-
     if (cabeza != nullptr) {
         NodoLCD* actual = cabeza;
         do {
@@ -81,16 +73,13 @@ void ListaCircularDoble::generarReporte(const std::string& nombreArchivo) {
             actual = actual->siguiente;
         } while (actual != cabeza);
     }
-
     archivo << "}\n";
     archivo.close();
-
     std::string comando = "dot -Tpng " + nombreArchivo + " -o lista_circular_doble.png";
     system(comando.c_str());
 }
 Avion* ListaCircularDoble::buscarYEliminar(const std::string& numeroRegistro) {
     if (cabeza == nullptr) return nullptr;
-
     NodoLCD* actual = cabeza;
     do {
         if (actual->dato.getNumeroDeRegistro() == numeroRegistro) {
@@ -107,6 +96,5 @@ Avion* ListaCircularDoble::buscarYEliminar(const std::string& numeroRegistro) {
         }
         actual = actual->siguiente;
     } while (actual != cabeza);
-
     return nullptr;
 }

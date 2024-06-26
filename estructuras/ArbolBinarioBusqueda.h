@@ -30,6 +30,5 @@ public:
     void postorden();
     void eliminarPiloto(int horasDeVuelo);
     void generarReporte(const std::string& nombreArchivo);
-
 };
 #endif //PROYECTO2CONTROLAEROPUERTO_ARBOLBINARIO_H

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <list>
+#include <vector>
 #include "../Objetos/Ruta.h"
 class NodoAdyacencia {
 public:
@@ -28,6 +29,6 @@ public:
     void agregarRuta(const Ruta& ruta);
     void imprimirGrafo();
     void generarReporte(const std::string& nombreArchivo);
-    // agregar métodos para encontrar la ruta más corta
+    std::vector<std::string> encontrarRutaMasCorta(const std::string& origen, const std::string& destino);
 };
 #endif //PROYECTO2CONTROLAEROPUERTO_GRAFO_H

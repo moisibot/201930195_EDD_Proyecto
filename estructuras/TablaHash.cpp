@@ -1,16 +1,13 @@
 #include "TablaHash.h"
 #include <iostream>
 #include <fstream>
-
 NodoHash::NodoHash(const Piloto& piloto) : dato(piloto), siguiente(nullptr) {}
-
 TablaHash::TablaHash(int tamanioInicial) : tamanio(tamanioInicial), elementos(0) {
     tabla = new NodoHash*[tamanio];
     for (int i = 0; i < tamanio; i++) {
         tabla[i] = nullptr;
     }
 }
-
 TablaHash::~TablaHash() {
     for (int i = 0; i < tamanio; i++) {
         NodoHash* actual = tabla[i];
@@ -40,27 +37,22 @@ void TablaHash::insertar(const Piloto& piloto) {
     tabla[indice] = nuevoNodo;
     elementos++;
 }
-
 bool TablaHash::eliminar(const std::string& id) {
     int indice = funcionHash(id);
     NodoHash* actual = tabla[indice];
     NodoHash* anterior = nullptr;
-
     while (actual != nullptr && actual->dato.getNumeroDeId() != id) {
         anterior = actual;
         actual = actual->siguiente;
     }
-
     if (actual == nullptr) {
         return false;
     }
-
     if (anterior == nullptr) {
         tabla[indice] = actual->siguiente;
     } else {
         anterior->siguiente = actual->siguiente;
     }
-
     delete actual;
     elementos--;
     return true;
@@ -69,14 +61,12 @@ bool TablaHash::eliminar(const std::string& id) {
 Piloto* TablaHash::buscar(const std::string& id) {
     int indice = funcionHash(id);
     NodoHash* actual = tabla[indice];
-
     while (actual != nullptr) {
         if (actual->dato.getNumeroDeId() == id) {
             return &(actual->dato);
         }
         actual = actual->siguiente;
     }
-
     return nullptr;
 }
 
@@ -86,7 +76,6 @@ void TablaHash::redimensionar() {
     for (int i = 0; i < nuevoTamanio; i++) {
         nuevaTabla[i] = nullptr;
     }
-
     for (int i = 0; i < tamanio; i++) {
         NodoHash* actual = tabla[i];
         while (actual != nullptr) {
@@ -97,7 +86,6 @@ void TablaHash::redimensionar() {
             actual = siguiente;
         }
     }
-
     delete[] tabla;
     tabla = nuevaTabla;
     tamanio = nuevoTamanio;
@@ -118,7 +106,6 @@ void TablaHash::generarReporte(const std::string& nombreArchivo) {
     std::ofstream archivo(nombreArchivo);
     archivo << "digraph TablaHash {\n";
     archivo << "node [shape=record];\n";
-
     for (int i = 0; i < tamanio; i++) {
         archivo << "bucket" << i << " [label=\"" << i << "\"];\n";
         NodoHash* actual = tabla[i];
@@ -132,10 +119,8 @@ void TablaHash::generarReporte(const std::string& nombreArchivo) {
             actual = actual->siguiente;
         }
     }
-
     archivo << "}\n";
     archivo.close();
-
     std::string comando = "dot -Tpng " + nombreArchivo + " -o tabla_hash.png";
     system(comando.c_str());
 }

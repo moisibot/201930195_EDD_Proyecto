@@ -1,0 +1,12 @@
+Málaga/Granada/129;
+Granada/Málaga/129;
+Córdoba/Sevilla/140;
+Sevilla/Córdoba/140;
+Huelva/Sevilla/94;
+Sevilla/Huelva/94;
+Almería/Granada/173;
+Granada/Almería/173;
+Jaén/Córdoba/108;
+Córdoba/Jaén/108;
+Cádiz/Málaga/235;
+Málaga/Cádiz/235;
