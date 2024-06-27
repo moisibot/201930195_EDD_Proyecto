@@ -1,5 +1,5 @@
 digraph ArbolB {
 node [shape=record, height=.1];
 rankdir=TB;
-nodo0x55b056cb8e90 [label="N12345 | N54321"];
+nodo0x558311c60e90 [label="N12345 | N54321"];
 }

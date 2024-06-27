@@ -45,8 +45,10 @@ void cargarPilotos(const std::string& nombreArchivo, ArbolBinarioBusqueda& arbol
         return;
     }
     std::cout << "Archivo de pilotos abierto correctamente." << std::endl;
+
     json jsonData;
     archivo >> jsonData;
+
     for (const auto& pilotoJson : jsonData) {
         Piloto piloto(
                 pilotoJson["nombre"],
@@ -59,6 +61,8 @@ void cargarPilotos(const std::string& nombreArchivo, ArbolBinarioBusqueda& arbol
         arbolPilotos.insertar(piloto);
         tablaPilotos.insertar(piloto);
     }
+
+    std::cout << "Pilotos cargados exitosamente." << std::endl;
 }
 
 void cargarRutas(const std::string& nombreArchivo, Grafo& grafoRutas) {
@@ -153,6 +157,38 @@ void generarImagenDesdeArchivoDot(const std::string& archivoEntrada, const std::
         std::cout << "Imagen generada correctamente: " << archivoSalida << std::endl;
     }
 }
+void mostrarMenuRecorrido(ArbolBinarioBusqueda& arbolPilotos) {
+    int opcion;
+    do {
+        std::cout << "\n---- Seleccione el recorrido ----" << std::endl;
+        std::cout << "1. Preorden" << std::endl;
+        std::cout << "2. Inorder" << std::endl;
+        std::cout << "3. Postorden" << std::endl;
+        std::cout << "0. Salir" << std::endl;
+        std::cout << "Opción: ";
+        std::cin >> opcion;
+
+        switch (opcion) {
+            case 1:
+                std::cout << "Recorrido Preorden:" << std::endl;
+                arbolPilotos.preorden();
+                break;
+            case 2:
+                std::cout << "Recorrido Inorden:" << std::endl;
+                arbolPilotos.inorden();
+                break;
+            case 3:
+                std::cout << "Recorrido Postorden:" << std::endl;
+                arbolPilotos.postorden();
+                break;
+            case 0:
+                std::cout << "Volviendo al menú principal..." << std::endl;
+                break;
+            default:
+                std::cout << "Opción no válida. Intente de nuevo." << std::endl;
+        }
+    } while (opcion != 0);
+}
 
 void mostrarMenu() {
     std::cout << "=== Sistema de Gestión de Aeropuerto ===" << std::endl;
@@ -172,8 +208,9 @@ int main() {
     ArbolBinarioBusqueda arbol;
     ListaCircularDoble listaMantenimiento;
     ArbolBinarioBusqueda arbolPilotos;
-    TablaHash tablaPilotos(18);
+    TablaHash tablaPilotos;
     Grafo grafoRutas;
+
     int opcion;
     do {
         mostrarMenu();
@@ -197,43 +234,8 @@ int main() {
                 break;
             case 6:
                 // Llamar a función para recomendar ruta más corta
-                int opcion;
-                do {
-                    std::cout << "-----Seleccione el recorrido-----" << std::endl;
-                std::cout << "1. Preorden" << std::endl;
-                std::cout << "2. Inorder" << std::endl;
-                std::cout << "3. Postorden" << std::endl;
-                std::cout << "4. Generar reporte gráfico" << std::endl;
-                std::cout << "5. Salir" << std::endl;
-                std::cout << "Opción: ";
-                    std::cin >> opcion;
-                   // mostrarMenu();
+                mostrarMenuRecorrido(arbolPilotos);
 
-
-                    switch(opcion) {
-                        case 1:
-                            std::cout << "Recorrido Preorden:" << std::endl;
-                            arbol.preorden();
-                            break;
-                        case 2:
-                            std::cout << "Recorrido Inorden:" << std::endl;
-                            arbol.inorden();
-                            break;
-                        case 3:
-                            std::cout << "Recorrido Postorden:" << std::endl;
-                            arbol.postorden();
-                            break;
-                        case 4:
-                            arbol.generarReporte("arbol_binario.dot");
-                            std::cout << "Reporte gráfico generado como 'arbol_binario.png'" << std::endl;
-                            break;
-                        case 5:
-                            std::cout << "Saliendo del programa..." << std::endl;
-                            break;
-                        default:
-                            std::cout << "Opción no válida. Intente de nuevo." << std::endl;
-                    }
-                } while (opcion != 5);
                 break;
             case 7:
                 int opcionReportes;
@@ -252,16 +254,18 @@ int main() {
                         case 1:
                             //reportes.generarReporteArbolB(arbolAviones);
                             arbolAviones.generarReporte("arbol_b_disponibles.dot");
-                            listaMantenimiento.generarReporte("lista_mantenimiento.dot");
+
                             break;
                         case 2:
-                            reportes.generarReporteListaMantenimiento(listaMantenimiento);
+                            listaMantenimiento.generarReporte("lista_mantenimiento.dot");
                             break;
                         case 3:
-                            reportes.generarReporteArbolBinario(arbolPilotos);
+                            arbolPilotos.generarReporte("reporte_arbol.dot");
+                            std::cout << "Reporte del árbol generado como 'arbol_binario.png'" << std::endl;
                             break;
                         case 4:
-                            reportes.generarReporteTablaHash(tablaPilotos);
+                            tablaPilotos.generarReporte("reporte_tabla_hash_pilotos.dot");
+                            std::cout << "Reporte de la tabla hash de pilotos generado como 'tabla_hash_pilotos.png'" << std::endl;
                             break;
                         case 5:
                             reportes.generarReporteGrafoDirigido(grafoRutas);

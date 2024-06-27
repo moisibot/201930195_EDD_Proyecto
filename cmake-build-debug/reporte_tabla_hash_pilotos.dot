@@ -1,0 +1,29 @@
+digraph TablaHash {
+node [shape=record];
+bucket0 [label="0"];
+bucket1 [label="1"];
+bucket2 [label="2"];
+bucket3 [label="3"];
+nodo0x562f7d302a10 [label="Maria Rodriguez\nE87654321"];
+bucket3 -> nodo0x562f7d302a10;
+bucket4 [label="4"];
+bucket5 [label="5"];
+bucket6 [label="6"];
+bucket7 [label="7"];
+bucket8 [label="8"];
+bucket9 [label="9"];
+bucket10 [label="10"];
+nodo0x562f7d303b00 [label="Hans Mueller\nD23456789"];
+bucket10 -> nodo0x562f7d303b00;
+bucket11 [label="11"];
+bucket12 [label="12"];
+bucket13 [label="13"];
+bucket14 [label="14"];
+bucket15 [label="15"];
+bucket16 [label="16"];
+nodo0x562f7d303c80 [label="Yuki Tanaka\nJ98765432"];
+bucket16 -> nodo0x562f7d303c80;
+bucket17 [label="17"];
+nodo0x562f7d303e00 [label="Carlos Sanchez\nM34567890"];
+bucket17 -> nodo0x562f7d303e00;
+}

@@ -1,13 +1,16 @@
 #include "TablaHash.h"
 #include <iostream>
 #include <fstream>
+
 NodoHash::NodoHash(const Piloto& piloto) : dato(piloto), siguiente(nullptr) {}
-TablaHash::TablaHash(int tamanioInicial) : tamanio(tamanioInicial), elementos(0) {
+
+TablaHash::TablaHash() : tamanio(TAMANO_INICIAL), elementos(0) {
     tabla = new NodoHash*[tamanio];
     for (int i = 0; i < tamanio; i++) {
         tabla[i] = nullptr;
     }
 }
+
 TablaHash::~TablaHash() {
     for (int i = 0; i < tamanio; i++) {
         NodoHash* actual = tabla[i];
@@ -20,15 +23,16 @@ TablaHash::~TablaHash() {
     delete[] tabla;
 }
 
-int TablaHash::funcionHash(const std::string& id) {
+int TablaHash::funcionHash(const std::string& id) const {
     int suma = 0;
     for (char c : id) {
         suma += c;
     }
     return suma % tamanio;
 }
+
 void TablaHash::insertar(const Piloto& piloto) {
-    if (static_cast<double>(elementos) / tamanio > 0.75) {
+    if (factorCarga() > 0.75) {
         redimensionar();
     }
     int indice = funcionHash(piloto.getNumeroDeId());
@@ -37,6 +41,7 @@ void TablaHash::insertar(const Piloto& piloto) {
     tabla[indice] = nuevoNodo;
     elementos++;
 }
+
 bool TablaHash::eliminar(const std::string& id) {
     int indice = funcionHash(id);
     NodoHash* actual = tabla[indice];
@@ -91,7 +96,7 @@ void TablaHash::redimensionar() {
     tamanio = nuevoTamanio;
 }
 
-void TablaHash::imprimir() {
+void TablaHash::imprimir() const {
     for (int i = 0; i < tamanio; i++) {
         std::cout << "Índice " << i << ": ";
         NodoHash* actual = tabla[i];
@@ -102,7 +107,8 @@ void TablaHash::imprimir() {
         std::cout << "nullptr" << std::endl;
     }
 }
-void TablaHash::generarReporte(const std::string& nombreArchivo) {
+
+void TablaHash::generarReporte(const std::string& nombreArchivo) const {
     std::ofstream archivo(nombreArchivo);
     archivo << "digraph TablaHash {\n";
     archivo << "node [shape=record];\n";
@@ -123,4 +129,8 @@ void TablaHash::generarReporte(const std::string& nombreArchivo) {
     archivo.close();
     std::string comando = "dot -Tpng " + nombreArchivo + " -o tabla_hash.png";
     system(comando.c_str());
+}
+
+double TablaHash::factorCarga() const {
+    return static_cast<double>(elementos) / tamanio;
 }

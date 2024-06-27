@@ -1,0 +1,9 @@
+digraph ArbolBinario {
+nodo0x562f7d302950 [label="Maria Rodriguez\n3500 horas"];
+nodo0x562f7d302950 -> nodo0x562f7d303a40;
+nodo0x562f7d303a40 [label="Hans Mueller\n2800 horas"];
+nodo0x562f7d303a40 -> nodo0x562f7d303d40;
+nodo0x562f7d303d40 [label="Carlos Sanchez\n1500 horas"];
+nodo0x562f7d302950 -> nodo0x562f7d303bc0;
+nodo0x562f7d303bc0 [label="Yuki Tanaka\n5000 horas"];
+}
