@@ -109,29 +109,40 @@ void ArbolB::imprimirNodo(NodoB* nodo, int nivel) {
 }
 void ArbolB::generarReporte(const std::string& nombreArchivo) {
     std::ofstream archivo(nombreArchivo);
+    if (!archivo.is_open()) {
+        std::cerr << "No se pudo abrir el archivo " << nombreArchivo << std::endl;
+        return;
+    }
     archivo << "digraph ArbolB {\n";
-    archivo << "node [shape=record];\n";
+    archivo << "node [shape=record, height=.1];\n";
+    archivo << "rankdir=TB;\n";
     if (raiz != nullptr) {
         generarReporteRecursivo(raiz, archivo);
     }
     archivo << "}\n";
     archivo.close();
-    std::string comando = "dot -Tpng " + nombreArchivo + " -o arbol_b.png";
+    std::string comando = "dot -Tpng " + nombreArchivo + " -o arbol_b_disponibles.png";
     system(comando.c_str());
 }
 
 void ArbolB::generarReporteRecursivo(NodoB* nodo, std::ofstream& archivo) {
     if (nodo == nullptr) return;
+
+    // Crear el nodo
     archivo << "nodo" << nodo << " [label=\"";
     for (int i = 0; i < nodo->numClaves; i++) {
         archivo << nodo->claves[i].getNumeroDeRegistro();
-        if (i < nodo->numClaves - 1) archivo << "|";
+        if (i < nodo->numClaves - 1) archivo << " | ";
     }
     archivo << "\"];\n";
+
+    // Crear las conexiones
     if (!nodo->esHoja) {
         for (int i = 0; i <= nodo->numClaves; i++) {
-            archivo << "nodo" << nodo << " -> nodo" << nodo->hijos[i] << ";\n";
-            generarReporteRecursivo(nodo->hijos[i], archivo);
+            if (nodo->hijos[i] != nullptr) {
+                archivo << "nodo" << nodo << " -> nodo" << nodo->hijos[i] << ";\n";
+                generarReporteRecursivo(nodo->hijos[i], archivo);
+            }
         }
     }
 }

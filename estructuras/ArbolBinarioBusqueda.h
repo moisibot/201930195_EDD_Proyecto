@@ -2,6 +2,7 @@
 #define PROYECTO2CONTROLAEROPUERTO_ARBOLBINARIO_H
 #include "../Objetos/Piloto.h"
 #include <iostream>
+#include <fstream>
 class NodoABB {
 public:
     Piloto dato;

@@ -12,7 +12,6 @@ ListaCircularDoble::~ListaCircularDoble() {
         actual = siguiente;
     } while (actual != cabeza);
 }
-
 void ListaCircularDoble::insertar(const Avion& avion) {
     NodoLCD* nuevoNodo = new NodoLCD(avion);
     if (cabeza == nullptr) {
@@ -26,7 +25,6 @@ void ListaCircularDoble::insertar(const Avion& avion) {
         cabeza->anterior = nuevoNodo;
     }
 }
-
 bool ListaCircularDoble::eliminar(const std::string& numeroRegistro) {
     if (cabeza == nullptr) return false;
     NodoLCD* actual = cabeza;
@@ -47,7 +45,6 @@ bool ListaCircularDoble::eliminar(const std::string& numeroRegistro) {
     } while (actual != cabeza);
     return false;
 }
-
 void ListaCircularDoble::imprimir() {
     if (cabeza == nullptr) {
         std::cout << "Lista vacía" << std::endl;
@@ -62,20 +59,24 @@ void ListaCircularDoble::imprimir() {
 }
 void ListaCircularDoble::generarReporte(const std::string& nombreArchivo) {
     std::ofstream archivo(nombreArchivo);
+    if (!archivo.is_open()) {
+        std::cerr << "No se pudo abrir el archivo " << nombreArchivo << std::endl;
+        return;
+    }
     archivo << "digraph ListaCircularDoble {\n";
     archivo << "node [shape=record];\n";
+    archivo << "rankdir=LR;\n";
     if (cabeza != nullptr) {
         NodoLCD* actual = cabeza;
         do {
             archivo << "nodo" << actual << " [label=\"" << actual->dato.getNumeroDeRegistro() << "\"];\n";
-            archivo << "nodo" << actual << " -> nodo" << actual->siguiente << ";\n";
-            archivo << "nodo" << actual << " -> nodo" << actual->anterior << " [dir=back];\n";
+            archivo << "nodo" << actual << " -> nodo" << actual->siguiente << " [dir=both];\n";
             actual = actual->siguiente;
         } while (actual != cabeza);
     }
     archivo << "}\n";
     archivo.close();
-    std::string comando = "dot -Tpng " + nombreArchivo + " -o lista_circular_doble.png";
+    std::string comando = "dot -Tpng " + nombreArchivo + " -o lista_mantenimiento.png";
     system(comando.c_str());
 }
 Avion* ListaCircularDoble::buscarYEliminar(const std::string& numeroRegistro) {

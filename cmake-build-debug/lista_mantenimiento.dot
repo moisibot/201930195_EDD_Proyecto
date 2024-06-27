@@ -1,0 +1,8 @@
+digraph ListaCircularDoble {
+node [shape=record];
+rankdir=LR;
+nodo0x55b056cba6e0 [label="N67890"];
+nodo0x55b056cba6e0 -> nodo0x55b056cba7c0 [dir=both];
+nodo0x55b056cba7c0 [label="N09876"];
+nodo0x55b056cba7c0 -> nodo0x55b056cba6e0 [dir=both];
+}

@@ -2,22 +2,20 @@
 #define PROYECTO2CONTROLAEROPUERTO_REPORTES_H
 #include <fstream>
 #include <string>
-#include "../estructuras/ListaCircularDoble.h"
 #include "../estructuras/ArbolB.h"
-#include "../estructuras/ArbolBinarioBusqueda.h"
+#include "../estructuras/ListaCircularDoble.h"
 #include "../estructuras/TablaHash.h"
-#include "../estructuras/MatrizDispersa.h"
 #include "../estructuras/Grafo.h"
+#include "../estructuras/MatrizDispersa.h"
+#include "../estructuras/ArbolBinarioBusqueda.h"
 class Reportes {
 public:
-    static void generarReporteArbolB(const ArbolB* arbol);
-    static void generarReporteListaCircularDoble(const ListaCircularDoble* lista);
-    static void generarReporteArbolBinario(const ArbolBinarioBusqueda* arbol);
-    static void generarReporteTablaHash(const TablaHash* tabla);
-    static void generarReporteGrafo(const Grafo* grafo);
-    static void generarReporteMatrizDispersa(const MatrizDispersa* matriz);
-
-private:
-    static void ejecutarGraphviz(const std::string& nombreArchivo);
+    void generarReporteArbolB(ArbolB& arbolAviones);
+    void generarReporteListaMantenimiento(ListaCircularDoble& listaMantenimiento);
+    void generarReporteArbolBinario(ArbolBinarioBusqueda& arbolPilotos);
+    void generarReporteTablaHash(TablaHash& tablaPilotos);
+    void generarReporteGrafoDirigido(Grafo& grafoRutas);
+    void generarReporteMatrizDispersa(MatrizDispersa& matrizVuelos);
+    void generarImagenDesdeArchivoDot(const std::string& archivoEntrada, const std::string& archivoSalida, const std::string& formato);
 };
 #endif //PROYECTO2CONTROLAEROPUERTO_REPORTES_H
