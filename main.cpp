@@ -45,10 +45,8 @@ void cargarPilotos(const std::string& nombreArchivo, ArbolBinarioBusqueda& arbol
         return;
     }
     std::cout << "Archivo de pilotos abierto correctamente." << std::endl;
-
     json jsonData;
     archivo >> jsonData;
-
     for (const auto& pilotoJson : jsonData) {
         Piloto piloto(
                 pilotoJson["nombre"],
@@ -61,7 +59,6 @@ void cargarPilotos(const std::string& nombreArchivo, ArbolBinarioBusqueda& arbol
         arbolPilotos.insertar(piloto);
         tablaPilotos.insertar(piloto);
     }
-
     std::cout << "Pilotos cargados exitosamente." << std::endl;
 }
 
@@ -82,22 +79,25 @@ void cargarRutas(const std::string& nombreArchivo, Grafo& grafoRutas) {
         int distancia = std::stoi(distanciaStr);
         Ruta ruta(origen, destino, distancia);
         grafoRutas.agregarRuta(ruta);
+        Ruta rutaInversa(destino, origen, distancia);
+        grafoRutas.agregarRuta(rutaInversa);
     }
+    archivo.close();
+    std::cout << "Carga de rutas completada." << std::endl;
 }
 
-void procesarMovimientos(const std::string& nombreArchivo, ArbolB& arbolAviones, ListaCircularDoble& listaMantenimiento) {
+void procesarMovimientos(const std::string& nombreArchivo, ArbolB& arbolAviones, ListaCircularDoble& listaMantenimiento, ArbolBinarioBusqueda& arbolPilotos, MatrizDispersa& matrizVuelos, TablaHash& tablaPilotos) {
     std::ifstream archivo(nombreArchivo);
     if (!archivo.is_open()) {
         std::cerr << "No se pudo abrir el archivo " << nombreArchivo << std::endl;
         return;
     }
     std::cout << "Archivo de movimientos abierto correctamente." << std::endl;
+
     std::string linea;
     while (std::getline(archivo, linea)) {
-        // Eliminar espacios en blanco al inicio y al final de la línea
         linea.erase(0, linea.find_first_not_of(" \t"));
         linea.erase(linea.find_last_not_of(" \t;") + 1);
-
         std::istringstream iss(linea);
         std::string comando, accion, numeroRegistro;
 
@@ -105,8 +105,6 @@ void procesarMovimientos(const std::string& nombreArchivo, ArbolB& arbolAviones,
         if (comando == "MantenimientoAviones") {
             std::getline(iss, accion, ',');
             std::getline(iss, numeroRegistro);
-
-            // Eliminar espacios en blanco
             accion.erase(0, accion.find_first_not_of(" \t"));
             accion.erase(accion.find_last_not_of(" \t") + 1);
             numeroRegistro.erase(0, numeroRegistro.find_first_not_of(" \t"));
@@ -138,7 +136,12 @@ void procesarMovimientos(const std::string& nombreArchivo, ArbolB& arbolAviones,
             size_t fin = comando.find(')');
             if (inicio != std::string::npos && fin != std::string::npos && inicio < fin) {
                 numeroRegistro = comando.substr(inicio, fin - inicio);
-                std::cout << "Dando de baja: " << numeroRegistro << std::endl;
+                std::cout << "Dando de baja al piloto: " << numeroRegistro << std::endl;
+                arbolPilotos.eliminar(numeroRegistro);
+                matrizVuelos.eliminarPiloto(numeroRegistro);
+                tablaPilotos.eliminar(numeroRegistro);
+
+                std::cout << "Piloto " << numeroRegistro << " dado de baja y eliminado de todas las estructuras." << std::endl;
             } else {
                 std::cout << "Formato inválido para DarDeBaja: " << comando << std::endl;
             }
@@ -146,8 +149,8 @@ void procesarMovimientos(const std::string& nombreArchivo, ArbolB& arbolAviones,
             std::cout << "Comando no reconocido: " << comando << std::endl;
         }
     }
+    archivo.close();
 }
-
 void generarImagenDesdeArchivoDot(const std::string& archivoEntrada, const std::string& archivoSalida, const std::string& formato) {
     std::string comando = "dot -T" + formato + " -o " + archivoSalida + " " + archivoEntrada;
     int resultado = std::system(comando.c_str());
@@ -196,10 +199,11 @@ void mostrarMenu() {
     std::cout << "2. Cargar pilotos" << std::endl;
     std::cout << "3. Cargar rutas" << std::endl;
     std::cout << "4. Cargar movimientos" << std::endl;
-    std::cout << "5. Consultar horas de vuelo" << std::endl;
+    std::cout << "5. Consultar horas de vuelo (pilotos)" << std::endl;
     std::cout << "6. Recomendar ruta más corta" << std::endl;
     std::cout << "7. Generar reportes" << std::endl;
-    std::cout << "8. Salir" << std::endl;
+    std::cout << "8. Ver recorridos" << std::endl;
+    std::cout << "9. Salir" << std::endl;
     std::cout << "Seleccione una opción: ";
 }
 
@@ -210,6 +214,7 @@ int main() {
     ArbolBinarioBusqueda arbolPilotos;
     TablaHash tablaPilotos;
     Grafo grafoRutas;
+    MatrizDispersa matrizVuelos;
 
     int opcion;
     do {
@@ -221,21 +226,19 @@ int main() {
                 cargarAviones("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/aviones.json", arbolAviones, listaMantenimiento);
                 break;
             case 2:
-                cargarPilotos("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/piloto.json", arbolPilotos, tablaPilotos);
+                cargarPilotos("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/pilotos.json", arbolPilotos, tablaPilotos);
                 break;
             case 3:
                 cargarRutas("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/rutas.txt", grafoRutas);
                 break;
             case 4:
-                procesarMovimientos("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/movimientos.txt", arbolAviones, listaMantenimiento);
+                procesarMovimientos("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/movimientos.txt", arbolAviones, listaMantenimiento, arbolPilotos, matrizVuelos, tablaPilotos);
                 break;
             case 5:
                 // Llamar a función para consultar horas de vuelo
                 break;
             case 6:
                 // Llamar a función para recomendar ruta más corta
-                mostrarMenuRecorrido(arbolPilotos);
-
                 break;
             case 7:
                 int opcionReportes;
@@ -252,12 +255,12 @@ int main() {
                     Reportes reportes;
                     switch (opcionReportes) {
                         case 1:
-                            //reportes.generarReporteArbolB(arbolAviones);
                             arbolAviones.generarReporte("arbol_b_disponibles.dot");
-
+                            std::cout << "Reporte del árbol generado como 'arbol_b_disponibles.png'" << std::endl;
                             break;
                         case 2:
                             listaMantenimiento.generarReporte("lista_mantenimiento.dot");
+                            std::cout << "Reporte del árbol generado como 'lista_mantenimiento.png'" << std::endl;
                             break;
                         case 3:
                             arbolPilotos.generarReporte("reporte_arbol.dot");
@@ -268,10 +271,12 @@ int main() {
                             std::cout << "Reporte de la tabla hash de pilotos generado como 'tabla_hash_pilotos.png'" << std::endl;
                             break;
                         case 5:
-                            reportes.generarReporteGrafoDirigido(grafoRutas);
+                            grafoRutas.generarReporte("grafoRutas.dot");
+                            std::cout << "Reporte de la tabla hash de pilotos generado como 'grafoRutas.png'" << std::endl;
                             break;
                         case 6:
-                            //reportes.generarReporteMatrizDispersa(matrizVuelos);
+                            matrizVuelos.generarReporte("matrizVuelos.dot");
+                            std::cout << "Reporte de la tabla hash de pilotos generado como 'matrizVuelos.png'" << std::endl;
                             break;
                         case 7:
                             std::cout << "Regresando al menú principal..." << std::endl;
@@ -283,11 +288,14 @@ int main() {
                 } while (opcionReportes != 7);
                 break;
             case 8:
+                mostrarMenuRecorrido(arbolPilotos);
+                break;
+            case 9:
                 std::cout << "Saliendo del programa..." << std::endl;
                 break;
             default:
                 std::cout << "Opción no válida. Intente de nuevo." << std::endl;
         }
-    } while (opcion != 8);
+    } while (opcion != 9);
     return 0;
 }

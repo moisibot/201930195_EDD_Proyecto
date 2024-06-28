@@ -1,9 +1,31 @@
 digraph ArbolBinario {
-nodo0x562f7d302950 [label="Maria Rodriguez\n3500 horas"];
-nodo0x562f7d302950 -> nodo0x562f7d303a40;
-nodo0x562f7d303a40 [label="Hans Mueller\n2800 horas"];
-nodo0x562f7d303a40 -> nodo0x562f7d303d40;
-nodo0x562f7d303d40 [label="Carlos Sanchez\n1500 horas"];
-nodo0x562f7d302950 -> nodo0x562f7d303bc0;
-nodo0x562f7d303bc0 [label="Yuki Tanaka\n5000 horas"];
+"Hans Müller (305 horas)" [label="Hans Müller\n305 horas"];
+"Hans Müller (305 horas)" -> "Jane Smith (100 horas)";
+"Jane Smith (100 horas)" [label="Jane Smith\n100 horas"];
+"Jane Smith (100 horas)" -> "Miguel Pereira (80 horas)";
+"Miguel Pereira (80 horas)" [label="Miguel Pereira\n80 horas"];
+"Miguel Pereira (80 horas)" -> "Jürgen Schmidt (70 horas)";
+"Jürgen Schmidt (70 horas)" [label="Jürgen Schmidt\n70 horas"];
+"Jürgen Schmidt (70 horas)" -> "Emily Brown (40 horas)";
+"Emily Brown (40 horas)" [label="Emily Brown\n40 horas"];
+"Jane Smith (100 horas)" -> "Marta Rodríguez (150 horas)";
+"Marta Rodríguez (150 horas)" [label="Marta Rodríguez\n150 horas"];
+"Marta Rodríguez (150 horas)" -> "Luca Rossi (120 horas)";
+"Luca Rossi (120 horas)" [label="Luca Rossi\n120 horas"];
+"Marta Rodríguez (150 horas)" -> "Aisha Ahmed (175 horas)";
+"Aisha Ahmed (175 horas)" [label="Aisha Ahmed\n175 horas"];
+"Aisha Ahmed (175 horas)" -> "Isabella Santos (215 horas)";
+"Isabella Santos (215 horas)" [label="Isabella Santos\n215 horas"];
+"Isabella Santos (215 horas)" -> "Priya Sharma (190 horas)";
+"Priya Sharma (190 horas)" [label="Priya Sharma\n190 horas"];
+"Isabella Santos (215 horas)" -> "Olga Ivanova (295 horas)";
+"Olga Ivanova (295 horas)" [label="Olga Ivanova\n295 horas"];
+"Olga Ivanova (295 horas)" -> "Chen Wei (235 horas)";
+"Chen Wei (235 horas)" [label="Chen Wei\n235 horas"];
+"Hans Müller (305 horas)" -> "Carlos García (640 horas)";
+"Carlos García (640 horas)" [label="Carlos García\n640 horas"];
+"Carlos García (640 horas)" -> "Fatima Al-Sayed (365 horas)";
+"Fatima Al-Sayed (365 horas)" [label="Fatima Al-Sayed\n365 horas"];
+"Carlos García (640 horas)" -> "Thabo Ndlovu (999 horas)";
+"Thabo Ndlovu (999 horas)" [label="Thabo Ndlovu\n999 horas"];
 }

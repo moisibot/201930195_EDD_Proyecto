@@ -25,5 +25,7 @@ public:
     Piloto* obtener(const std::string& vuelo, const std::string& ciudadDestino);
     void imprimir();
     void generarReporte(const std::string& nombreArchivo);
+
+    void eliminarPiloto(const std::string &pilotoId);
 };
 #endif //PROYECTO2CONTROLAEROPUERTO_MATRIZDISPERSA_H

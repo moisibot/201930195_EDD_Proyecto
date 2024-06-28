@@ -65,3 +65,4 @@ void Reportes::generarImagenDesdeArchivoDot(const std::string& archivoEntrada, c
         std::cout << "Imagen generada correctamente: " << archivoSalida << std::endl;
     }
 }
+

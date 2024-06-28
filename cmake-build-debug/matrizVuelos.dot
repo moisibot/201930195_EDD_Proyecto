@@ -1,0 +1,4 @@
+digraph MatrizDispersa {
+node [shape=record];
+raiz [label="Raíz"];
+}

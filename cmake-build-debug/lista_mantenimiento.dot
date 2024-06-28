@@ -1,8 +1,8 @@
 digraph ListaCircularDoble {
 node [shape=record];
 rankdir=LR;
-nodo0x558311c626e0 [label="N67890"];
-nodo0x558311c626e0 -> nodo0x558311c627c0 [dir=both];
-nodo0x558311c627c0 [label="N09876"];
-nodo0x558311c627c0 -> nodo0x558311c626e0 [dir=both];
+nodo0x556f1292d280 [label="N70000"];
+nodo0x556f1292d280 -> nodo0x556f1292ea20 [dir=both];
+nodo0x556f1292ea20 [label="N70015"];
+nodo0x556f1292ea20 -> nodo0x556f1292d280 [dir=both];
 }

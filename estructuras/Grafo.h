@@ -30,5 +30,7 @@ public:
     void imprimirGrafo();
     void generarReporte(const std::string& nombreArchivo);
     std::vector<std::string> encontrarRutaMasCorta(const std::string& origen, const std::string& destino);
+    void generarReporteGrafo() const;
+
 };
 #endif //PROYECTO2CONTROLAEROPUERTO_GRAFO_H

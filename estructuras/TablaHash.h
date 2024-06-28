@@ -3,14 +3,12 @@
 #include "../Objetos/Avion.h"
 #include "../Objetos/Piloto.h"
 #include <string>
-
 class NodoHash {
 public:
     Piloto dato;
     NodoHash* siguiente;
     NodoHash(const Piloto& piloto);
 };
-
 class TablaHash {
 private:
     static const int TAMANO_INICIAL = 18;
@@ -19,7 +17,6 @@ private:
     int elementos;
     int funcionHash(const std::string& id) const;
     void redimensionar();
-
 public:
     TablaHash();
     ~TablaHash();

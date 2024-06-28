@@ -210,3 +210,16 @@ void MatrizDispersa::generarReporte(const std::string& nombreArchivo) {
     std::string comando = "dot -Tpng " + nombreArchivo + " -o matriz_dispersa.png";
     system(comando.c_str());
 }
+void MatrizDispersa::eliminarPiloto(const std::string& pilotoId) {
+    NodoMatriz* fila = filas;
+    while (fila != nullptr) {
+        if (fila->piloto->getNumeroDeId() == pilotoId) {
+            NodoMatriz* actual = fila->derecha;
+            while (actual != nullptr) {
+                eliminar(fila->vuelo, actual->ciudadDestino);
+                actual = actual->derecha;
+            }
+        }
+        fila = fila->abajo;
+    }
+}
