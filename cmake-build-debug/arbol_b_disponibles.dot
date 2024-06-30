@@ -1,9 +1,9 @@
 digraph ArbolB {
 node [shape=record, height=.1];
 rankdir=TB;
-nodo0x556f12928db0 [label="N70005"];
-nodo0x556f12928db0 -> nodo0x556f12928e90;
-nodo0x556f12928e90 [label="N50013 | N70001 | N70002 | N70003 | N70004"];
-nodo0x556f12928db0 -> nodo0x556f1292e260;
-nodo0x556f1292e260 [label="N70006 | N70007 | N70008 | N70009 | N70010 | N70011 | N70012 | N70014"];
+nodo0x556077953db0 [label="N70005"];
+nodo0x556077953db0 -> nodo0x556077953e90;
+nodo0x556077953e90 [label="N50013 | N70001 | N70002 | N70003 | N70004"];
+nodo0x556077953db0 -> nodo0x556077959260;
+nodo0x556077959260 [label="N70006 | N70007 | N70008 | N70009 | N70010 | N70011 | N70012 | N70014"];
 }

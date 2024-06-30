@@ -24,12 +24,16 @@ TablaHash::~TablaHash() {
 }
 
 int TablaHash::funcionHash(const std::string& id) const {
-    int suma = 0;
-    for (char c : id) {
-        suma += c;
+    if (id.empty()) {
+        return 0;
+    }
+    int suma = static_cast<int>(id[0]);
+    for (size_t i = 1; i < id.length(); ++i) {
+        suma += (id[i] - '0');
     }
     return suma % tamanio;
 }
+
 
 void TablaHash::insertar(const Piloto& piloto) {
     if (factorCarga() > 0.75) {
@@ -76,7 +80,7 @@ Piloto* TablaHash::buscar(const std::string& id) {
 }
 
 void TablaHash::redimensionar() {
-    int nuevoTamanio = tamanio * 2;
+    int nuevoTamanio = tamanio;
     NodoHash** nuevaTabla = new NodoHash*[nuevoTamanio];
     for (int i = 0; i < nuevoTamanio; i++) {
         nuevaTabla[i] = nullptr;

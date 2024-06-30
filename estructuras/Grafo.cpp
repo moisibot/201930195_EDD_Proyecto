@@ -1,12 +1,13 @@
 #include "Grafo.h"
 #include <iostream>
 #include <fstream>
-#include <queue>
-#include <limits>
 #include <algorithm>
+#include <climits>
 
 NodoAdyacencia::NodoAdyacencia(const Ruta& r) : ruta(r), siguiente(nullptr) {}
 NodoVertice::NodoVertice(const std::string& c) : ciudad(c), listaAdyacencia(nullptr), siguiente(nullptr) {}
+NodoCamino::NodoCamino(const std::string& c) : ciudad(c), siguiente(nullptr) {}
+
 Grafo::Grafo() : vertices(nullptr) {}
 Grafo::~Grafo() {
     while (vertices != nullptr) {
@@ -31,7 +32,6 @@ NodoVertice* Grafo::buscarVertice(const std::string& ciudad) {
     }
     return nullptr;
 }
-
 NodoVertice* Grafo::agregarVertice(const std::string& ciudad) {
     NodoVertice* nuevoVertice = new NodoVertice(ciudad);
     nuevoVertice->siguiente = vertices;
@@ -58,13 +58,14 @@ void Grafo::imprimirGrafo() {
         std::cout << actualVertice->ciudad << " -> ";
         NodoAdyacencia* actualAdyacencia = actualVertice->listaAdyacencia;
         while (actualAdyacencia != nullptr) {
-            std::cout << actualAdyacencia->ruta.getDestino() << "(" << actualAdyacencia->ruta.getDistanciaDeRuta() << "km) ";
+            std::cout << actualAdyacencia->ruta.getDestino() << "(" << actualAdyacencia->ruta.getDistanciaDeRuta() << ") ";
             actualAdyacencia = actualAdyacencia->siguiente;
         }
         std::cout << std::endl;
         actualVertice = actualVertice->siguiente;
     }
 }
+
 void Grafo::generarReporte(const std::string& nombreArchivo) {
     std::ofstream archivo(nombreArchivo);
     archivo << "digraph Grafo {\n";
@@ -75,7 +76,7 @@ void Grafo::generarReporte(const std::string& nombreArchivo) {
         while (actualAdyacencia != nullptr) {
             archivo << "\"" << actualVertice->ciudad << "\" -> \""
                     << actualAdyacencia->ruta.getDestino() << "\" [label=\""
-                    << actualAdyacencia->ruta.getDistanciaDeRuta() << "km\"];\n";
+                    << actualAdyacencia->ruta.getDistanciaDeRuta() << "\"];\n";
             actualAdyacencia = actualAdyacencia->siguiente;
         }
         actualVertice = actualVertice->siguiente;
@@ -85,41 +86,169 @@ void Grafo::generarReporte(const std::string& nombreArchivo) {
     std::string comando = "dot -Tpng " + nombreArchivo + " -o grafo_rutas.png";
     system(comando.c_str());
 }
-std::vector<std::string> Grafo::encontrarRutaMasCorta(const std::string& origen, const std::string& destino) {
-    std::unordered_map<std::string, int> distancias;
-    std::unordered_map<std::string, std::string> previos;
-    std::priority_queue<std::pair<int, std::string>, std::vector<std::pair<int, std::string>>, std::greater<std::pair<int, std::string>>> pq;
-    NodoVertice* actual = vertices;
-    while (actual != nullptr) {
-        distancias[actual->ciudad] = std::numeric_limits<int>::max();
-        actual = actual->siguiente;
+
+void Grafo::encontrarTodasLasRutasAux(NodoVertice* verticeActual, const std::string& destino, NodoCamino* camino, NodoCamino*& rutas) {
+    if (!verticeActual || camino == nullptr) {
+        return;
     }
-    distancias[origen] = 0;
-    pq.push({0, origen});
-    while (!pq.empty()) {
-        std::string ciudadActual = pq.top().second;
-        int distanciaActual = pq.top().first;
-        pq.pop();
-        if (ciudadActual == destino) break;
-        NodoVertice* verticeActual = buscarVertice(ciudadActual);
+    NodoCamino* nuevoCamino = new NodoCamino(verticeActual->ciudad);
+    nuevoCamino->siguiente = camino;
+    camino = nuevoCamino;
+    if (verticeActual->ciudad == destino) {
+        NodoCamino* ruta = nullptr;
+        NodoCamino* temp = camino;
+        while (temp != nullptr) {
+            NodoCamino* nuevoNodo = new NodoCamino(temp->ciudad);
+            nuevoNodo->siguiente = ruta;
+            ruta = nuevoNodo;
+            temp = temp->siguiente;
+        }
+        ruta->siguiente = rutas;
+        rutas = ruta;
+    } else {
         NodoAdyacencia* adyacente = verticeActual->listaAdyacencia;
         while (adyacente != nullptr) {
-            int nuevaDistancia = distanciaActual + adyacente->ruta.getDistanciaDeRuta();
-            if (nuevaDistancia < distancias[adyacente->ruta.getDestino()]) {
-                distancias[adyacente->ruta.getDestino()] = nuevaDistancia;
-                previos[adyacente->ruta.getDestino()] = ciudadActual;
-                pq.push({nuevaDistancia, adyacente->ruta.getDestino()});
+            NodoVertice* siguienteVertice = buscarVertice(adyacente->ruta.getDestino());
+            encontrarTodasLasRutasAux(siguienteVertice, destino, camino, rutas);
+            adyacente = adyacente->siguiente;
+        }
+    }
+    while (camino != nullptr) {
+        NodoCamino* temp = camino;
+        camino = camino->siguiente;
+        delete temp;
+    }
+}
+
+NodoCamino* Grafo::encontrarTodasLasRutas(const std::string& origen, const std::string& destino) {
+    NodoVertice* verticeOrigen = buscarVertice(origen);
+    if (verticeOrigen == nullptr) {
+        std::cerr << "La ciudad de origen '" << origen << "' no existe en el grafo.\n";
+        return nullptr;
+    }
+
+    NodoCamino* rutas = nullptr;
+    NodoCamino* camino = nullptr;
+    encontrarTodasLasRutasAux(verticeOrigen, destino, camino, rutas);
+    return rutas;
+}
+
+void Grafo::recomendarRutas(const std::string& origen, const std::string& destino) {
+    NodoCamino* rutas = encontrarTodasLasRutas(origen, destino);
+    if (rutas == nullptr) {
+        std::cerr << "No se encontró una ruta válida desde '" << origen << "' hasta '" << destino << "'.\n";
+        return;
+    }
+
+    NodoCamino* temp = rutas;
+    while (temp != nullptr) {
+        std::string ciudadActual = temp->ciudad;
+        std::cout << ciudadActual << " -> ";
+        NodoCamino* siguiente = temp->siguiente;
+        if (siguiente != nullptr) {
+            NodoVertice* verticeActual = buscarVertice(ciudadActual);
+            NodoAdyacencia* adyacente = verticeActual->listaAdyacencia;
+            while (adyacente != nullptr) {
+                if (adyacente->ruta.getDestino() == siguiente->ciudad) {
+                    std::cout << adyacente->ruta.getDestino() << "(" << adyacente->ruta.getDistanciaDeRuta() << ") ";
+                    break;
+                }
+                adyacente = adyacente->siguiente;
+            }
+        }
+        temp = temp->siguiente;
+    }
+    std::cout << std::endl;
+
+    // Liberar memoria de la lista de rutas
+    while (rutas != nullptr) {
+        NodoCamino* temp = rutas;
+        rutas = rutas->siguiente;
+        delete temp;
+    }
+}
+
+void Grafo::imprimirRutasDesde(const std::string& ciudad) {
+    NodoVertice* vertice = buscarVertice(ciudad);
+    if (!vertice) {
+        std::cout << "La ciudad " << ciudad << " no existe en el grafo." << std::endl;
+        return;
+    }
+
+    NodoAdyacencia* adyacente = vertice->listaAdyacencia;
+    while (adyacente) {
+        std::cout << ciudad << " -> " << adyacente->ruta.getDestino()
+                  << " (" << adyacente->ruta.getDistanciaDeRuta() << ")" << std::endl;
+        adyacente = adyacente->siguiente;
+    }
+}
+
+void Grafo::dijkstra(const std::string& origen, const std::string& destino) {
+    NodoVertice* origenVertice = buscarVertice(origen);
+    NodoVertice* destinoVertice = buscarVertice(destino);
+    if (!origenVertice || !destinoVertice) {
+        std::cerr << "La ciudad de origen o destino no existe en el grafo.\n";
+        return;
+    }
+    NodoVertice* actual = vertices;
+    while (actual != nullptr) {
+        actual->distancia = INT_MAX;
+        actual->padre = nullptr;
+        actual = actual->siguiente;
+    }
+    origenVertice->distancia = 0;
+    bool todoVisitado = false;
+    while (!todoVisitado) {
+        NodoVertice* u = nullptr;
+        int minDistancia = INT_MAX;
+        actual = vertices;
+        todoVisitado = true;
+        while (actual != nullptr) {
+            if (actual->distancia < minDistancia && actual->padre != actual) {
+                u = actual;
+                minDistancia = actual->distancia;
+                todoVisitado = false;
+            }
+            actual = actual->siguiente;
+        }
+        if (u == nullptr) break;
+        u->padre = u;
+        NodoAdyacencia* adyacente = u->listaAdyacencia;
+        while (adyacente != nullptr) {
+            NodoVertice* v = buscarVertice(adyacente->ruta.getDestino());
+            int alt = u->distancia + adyacente->ruta.getDistanciaDeRuta();
+            if (alt < v->distancia) {
+                v->distancia = alt;
+                v->padre = u;
             }
             adyacente = adyacente->siguiente;
         }
     }
-    std::vector<std::string> ruta;
-    std::string ciudadActual = destino;
-    while (ciudadActual != origen) {
-        ruta.push_back(ciudadActual);
-        ciudadActual = previos[ciudadActual];
+    if (destinoVertice->distancia == INT_MAX) {
+        std::cout << "No se encontró un camino desde " << origen << " hasta " << destino << ".\n";
+    } else {
+        std::cout << "Ruta mas corta desde " << origen << " a " << destino
+                  << " con distancia " << destinoVertice->distancia << " km:\n";
+        NodoVertice* v = destinoVertice;
+        NodoCamino* camino = nullptr;
+        while (v != nullptr && v != v->padre) {
+            NodoCamino* nuevoCamino = new NodoCamino(v->ciudad);
+            nuevoCamino->siguiente = camino;
+            camino = nuevoCamino;
+            v = v->padre;
+        }
+        while (camino != nullptr) {
+            std::cout << camino->ciudad;
+            camino = camino->siguiente;
+            if (camino != nullptr) std::cout << " -> ";
+        }
+        std::cout << std::endl;
+NodoCamino* temp = camino;
+        while (camino != nullptr) {
+            NodoCamino* temp = camino;
+            camino = camino->siguiente;
+            delete temp;
+        }
+        camino= nullptr;
     }
-    ruta.push_back(origen);
-    std::reverse(ruta.begin(), ruta.end());
-    return ruta;
 }

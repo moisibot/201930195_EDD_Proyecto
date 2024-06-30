@@ -4,7 +4,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-
 class NodoABB {
 public:
     Piloto dato;
@@ -22,7 +21,6 @@ private:
     void postordenRecursivo(NodoABB* nodo) const;
     void destruirRecursivo(NodoABB* nodo);
     void generarDotRecursivo(NodoABB* nodo, std::ofstream& archivo) const;
-
 public:
     ArbolBinarioBusqueda();
     ~ArbolBinarioBusqueda();
@@ -31,11 +29,8 @@ public:
     void preorden() const;
     void postorden() const;
     void generarReporte(const std::string& nombreArchivo) const;
-
     NodoABB *eliminarRecursivo(NodoABB *nodo, const std::string &id);
-
     void eliminar(const std::string &id);
-
     NodoABB *encontrarMinimo(NodoABB *nodo);
 };
 #endif //PROYECTO2CONTROLAEROPUERTO_ARBOLBINARIO_H

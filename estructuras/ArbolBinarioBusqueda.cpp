@@ -9,7 +9,6 @@ ArbolBinarioBusqueda::ArbolBinarioBusqueda() : raiz(nullptr) {}
 ArbolBinarioBusqueda::~ArbolBinarioBusqueda() {
     destruirRecursivo(raiz);
 }
-
 void ArbolBinarioBusqueda::destruirRecursivo(NodoABB* nodo) {
     if (nodo != nullptr) {
         destruirRecursivo(nodo->izquierdo);
@@ -21,7 +20,6 @@ void ArbolBinarioBusqueda::destruirRecursivo(NodoABB* nodo) {
 void ArbolBinarioBusqueda::insertar(const Piloto& piloto) {
     insertarRecursivo(raiz, piloto);
 }
-
 void ArbolBinarioBusqueda::insertarRecursivo(NodoABB*& nodo, const Piloto& piloto) {
     if (nodo == nullptr) {
         nodo = new NodoABB(piloto);
@@ -36,7 +34,6 @@ void ArbolBinarioBusqueda::inorden() const {
     inordenRecursivo(raiz);
     std::cout << std::endl;
 }
-
 void ArbolBinarioBusqueda::inordenRecursivo(NodoABB* nodo) const {
     if (nodo != nullptr) {
         inordenRecursivo(nodo->izquierdo);
@@ -49,7 +46,6 @@ void ArbolBinarioBusqueda::preorden() const {
     preordenRecursivo(raiz);
     std::cout << std::endl;
 }
-
 void ArbolBinarioBusqueda::preordenRecursivo(NodoABB* nodo) const {
     if (nodo != nullptr) {
         std::cout << nodo->dato.getNombre() << " (" << nodo->dato.getHorasDeVuelo() << " horas) ";
@@ -62,7 +58,6 @@ void ArbolBinarioBusqueda::postorden() const {
     postordenRecursivo(raiz);
     std::cout << std::endl;
 }
-
 void ArbolBinarioBusqueda::postordenRecursivo(NodoABB* nodo) const {
     if (nodo != nullptr) {
         postordenRecursivo(nodo->izquierdo);
@@ -80,7 +75,6 @@ void ArbolBinarioBusqueda::generarReporte(const std::string& nombreArchivo) cons
     std::string comando = "dot -Tpng " + nombreArchivo + " -o arbol_binario_pilotos.png";
     system(comando.c_str());
 }
-
 void ArbolBinarioBusqueda::generarDotRecursivo(NodoABB* nodo, std::ofstream& archivo) const {
     if (nodo != nullptr) {
         archivo << "\"" << nodo->dato.getNombre() << " (" << nodo->dato.getHorasDeVuelo() << " horas)\" [label=\""
@@ -99,12 +93,10 @@ void ArbolBinarioBusqueda::generarDotRecursivo(NodoABB* nodo, std::ofstream& arc
         }
     }
 }
-// Add these methods to your ArbolBinarioBusqueda class
 
 void ArbolBinarioBusqueda::eliminar(const std::string& id) {
     raiz = eliminarRecursivo(raiz, id);
 }
-
 NodoABB* ArbolBinarioBusqueda::eliminarRecursivo(NodoABB* nodo, const std::string& id) {
     if (nodo == nullptr) {
         return nullptr;
@@ -115,7 +107,6 @@ NodoABB* ArbolBinarioBusqueda::eliminarRecursivo(NodoABB* nodo, const std::strin
     } else if (id > nodo->dato.getNumeroDeId()) {
         nodo->derecho = eliminarRecursivo(nodo->derecho, id);
     } else {
-        // Nodo encontrado, proceder con la eliminación
         if (nodo->izquierdo == nullptr) {
             NodoABB* temp = nodo->derecho;
             delete nodo;
@@ -125,14 +116,8 @@ NodoABB* ArbolBinarioBusqueda::eliminarRecursivo(NodoABB* nodo, const std::strin
             delete nodo;
             return temp;
         }
-
-        // Nodo con dos hijos: obtener el sucesor inorden (el menor en el subárbol derecho)
         NodoABB* temp = encontrarMinimo(nodo->derecho);
-
-        // Copiar el contenido del sucesor inorden a este nodo
         nodo->dato = temp->dato;
-
-        // Eliminar el sucesor inorden
         nodo->derecho = eliminarRecursivo(nodo->derecho, temp->dato.getNumeroDeId());
     }
 
@@ -146,3 +131,6 @@ NodoABB* ArbolBinarioBusqueda::encontrarMinimo(NodoABB* nodo) {
     }
     return actual;
 }
+
+
+

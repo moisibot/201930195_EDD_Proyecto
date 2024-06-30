@@ -127,16 +127,12 @@ void ArbolB::generarReporte(const std::string& nombreArchivo) {
 
 void ArbolB::generarReporteRecursivo(NodoB* nodo, std::ofstream& archivo) {
     if (nodo == nullptr) return;
-
-    // Crear el nodo
     archivo << "nodo" << nodo << " [label=\"";
     for (int i = 0; i < nodo->numClaves; i++) {
         archivo << nodo->claves[i].getNumeroDeRegistro();
         if (i < nodo->numClaves - 1) archivo << " | ";
     }
     archivo << "\"];\n";
-
-    // Crear las conexiones
     if (!nodo->esHoja) {
         for (int i = 0; i <= nodo->numClaves; i++) {
             if (nodo->hijos[i] != nullptr) {

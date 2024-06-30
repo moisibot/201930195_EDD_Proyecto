@@ -151,6 +151,7 @@ void procesarMovimientos(const std::string& nombreArchivo, ArbolB& arbolAviones,
     }
     archivo.close();
 }
+
 void generarImagenDesdeArchivoDot(const std::string& archivoEntrada, const std::string& archivoSalida, const std::string& formato) {
     std::string comando = "dot -T" + formato + " -o " + archivoSalida + " " + archivoEntrada;
     int resultado = std::system(comando.c_str());
@@ -193,6 +194,21 @@ void mostrarMenuRecorrido(ArbolBinarioBusqueda& arbolPilotos) {
     } while (opcion != 0);
 }
 
+std::string obtenerEntradaValida(const std::string& mensaje) {
+    std::string entrada;
+    while (true) {
+        std::cout << mensaje;
+        std::getline(std::cin >> std::ws, entrada);
+        entrada.erase(0, entrada.find_first_not_of(" \t\n\r\f\v"));
+        entrada.erase(entrada.find_last_not_of(" \t\n\r\f\v") + 1);
+        if (!entrada.empty()) {
+            return entrada;
+        }
+        std::cout << "Entrada inválida. Por favor, intente de nuevo." << std::endl;
+    }
+}
+
+
 void mostrarMenu() {
     std::cout << "=== Sistema de Gestión de Aeropuerto ===" << std::endl;
     std::cout << "1. Cargar aviones" << std::endl;
@@ -215,6 +231,7 @@ int main() {
     TablaHash tablaPilotos;
     Grafo grafoRutas;
     MatrizDispersa matrizVuelos;
+    std::string origen, destino;
 
     int opcion;
     do {
@@ -223,22 +240,31 @@ int main() {
 
         switch(opcion) {
             case 1:
-                cargarAviones("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/aviones.json", arbolAviones, listaMantenimiento);
+                cargarAviones("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/aviones.json", arbolAviones,
+                              listaMantenimiento);
                 break;
             case 2:
-                cargarPilotos("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/pilotos.json", arbolPilotos, tablaPilotos);
-                break;
+                cargarPilotos("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/pilotos.json", arbolPilotos,
+                              tablaPilotos);
+                break;3;
             case 3:
                 cargarRutas("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/rutas.txt", grafoRutas);
+                grafoRutas.imprimirGrafo();
                 break;
             case 4:
-                procesarMovimientos("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/movimientos.txt", arbolAviones, listaMantenimiento, arbolPilotos, matrizVuelos, tablaPilotos);
+                procesarMovimientos("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/movimientos.txt",
+                                    arbolAviones, listaMantenimiento, arbolPilotos, matrizVuelos, tablaPilotos);
                 break;
             case 5:
-                // Llamar a función para consultar horas de vuelo
+                std::cout << "Horas de vuelo de los pilotos:" << std::endl;
+                arbolPilotos.preorden();
                 break;
             case 6:
-                // Llamar a función para recomendar ruta más corta
+                std::cout << "Ingrese la ciudad de origen: ";
+                std::cin >> origen;
+                std::cout << "Ingrese la ciudad de destino: ";
+                std::cin >> destino;
+                grafoRutas.dijkstra(origen, destino);
                 break;
             case 7:
                 int opcionReportes;
