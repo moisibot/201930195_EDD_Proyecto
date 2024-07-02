@@ -78,7 +78,7 @@ void ArbolBinarioBusqueda::generarReporte(const std::string& nombreArchivo) cons
 void ArbolBinarioBusqueda::generarDotRecursivo(NodoABB* nodo, std::ofstream& archivo) const {
     if (nodo != nullptr) {
         archivo << "\"" << nodo->dato.getNombre() << " (" << nodo->dato.getHorasDeVuelo() << " horas)\" [label=\""
-                << nodo->dato.getNombre() << "\\n" << nodo->dato.getHorasDeVuelo() << " horas\"];\n";
+                << nodo->dato.getHorasDeVuelo() << " horas\"];\n";
 
         if (nodo->izquierdo != nullptr) {
             archivo << "\"" << nodo->dato.getNombre() << " (" << nodo->dato.getHorasDeVuelo() << " horas)\" -> \""

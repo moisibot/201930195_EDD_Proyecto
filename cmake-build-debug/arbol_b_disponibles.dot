@@ -1,9 +1,17 @@
 digraph ArbolB {
 node [shape=record, height=.1];
 rankdir=TB;
-nodo0x556077953db0 [label="N70005"];
-nodo0x556077953db0 -> nodo0x556077953e90;
-nodo0x556077953e90 [label="N50013 | N70001 | N70002 | N70003 | N70004"];
-nodo0x556077953db0 -> nodo0x556077959260;
-nodo0x556077959260 [label="N70006 | N70007 | N70008 | N70009 | N70010 | N70011 | N70012 | N70014"];
+nodo0x558523f40db0 [label="N1004 | N1008 | N1012 | N1016 | N1020"];
+nodo0x558523f40db0 -> nodo0x558523f40e90;
+nodo0x558523f40e90 [label="N1001 | N1002 | N1003"];
+nodo0x558523f40db0 -> nodo0x558523f48e00;
+nodo0x558523f48e00 [label="N1005 | N1006 | N1007"];
+nodo0x558523f40db0 -> nodo0x558523f49550;
+nodo0x558523f49550 [label="N1009 | N1010 | N1011"];
+nodo0x558523f40db0 -> nodo0x558523f4a090;
+nodo0x558523f4a090 [label="N1013 | N1014 | N1015"];
+nodo0x558523f40db0 -> nodo0x558523f4abd0;
+nodo0x558523f4abd0 [label="N1017 | N1018 | N1019"];
+nodo0x558523f40db0 -> nodo0x558523f4b710;
+nodo0x558523f4b710 [label="N1021 | N1022 | N1023 | N1024 | N1025"];
 }

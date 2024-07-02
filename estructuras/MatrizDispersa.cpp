@@ -1,8 +1,9 @@
 #include "MatrizDispersa.h"
 #include <iostream>
 #include <fstream>
-NodoMatriz::NodoMatriz(const std::string& vuelo, const std::string& ciudadDestino, Piloto* piloto)
-        : vuelo(vuelo), ciudadDestino(ciudadDestino), piloto(piloto), derecha(nullptr), abajo(nullptr) {}
+NodoMatriz::NodoMatriz(const std::string& vuelo, const std::string& ciudadDestino, Piloto* piloto, int distancia)
+        : vuelo(vuelo), ciudadDestino(ciudadDestino), piloto(piloto), distancia(distancia), derecha(nullptr), abajo(nullptr) {}
+
 MatrizDispersa::MatrizDispersa() : filas(nullptr), columnas(nullptr) {}
 MatrizDispersa::~MatrizDispersa() {
     // Implementar la liberación de memoria
@@ -10,7 +11,7 @@ MatrizDispersa::~MatrizDispersa() {
 
 NodoMatriz* MatrizDispersa::buscarOCrearFila(const std::string& vuelo) {
     if (filas == nullptr || vuelo < filas->vuelo) {
-        NodoMatriz* nuevaFila = new NodoMatriz(vuelo, "", nullptr);
+        NodoMatriz* nuevaFila = new NodoMatriz(vuelo, "", nullptr, 0);  // Añadimos 0 como distancia por defecto
         nuevaFila->abajo = filas;
         filas = nuevaFila;
         return nuevaFila;
@@ -25,14 +26,15 @@ NodoMatriz* MatrizDispersa::buscarOCrearFila(const std::string& vuelo) {
     if (actual->vuelo == vuelo) {
         return actual;
     }
-    NodoMatriz* nuevaFila = new NodoMatriz(vuelo, "", nullptr);
+    NodoMatriz* nuevaFila = new NodoMatriz(vuelo, "", nullptr, 0);  // Añadimos 0 como distancia por defecto
     nuevaFila->abajo = actual->abajo;
     actual->abajo = nuevaFila;
     return nuevaFila;
 }
+
 NodoMatriz* MatrizDispersa::buscarOCrearColumna(const std::string& ciudadDestino) {
     if (columnas == nullptr || ciudadDestino < columnas->ciudadDestino) {
-        NodoMatriz* nuevaColumna = new NodoMatriz("", ciudadDestino, nullptr);
+        NodoMatriz* nuevaColumna = new NodoMatriz("", ciudadDestino, nullptr, 0);  // Añadimos 0 como distancia por defecto
         nuevaColumna->derecha = columnas;
         columnas = nuevaColumna;
         return nuevaColumna;
@@ -47,16 +49,18 @@ NodoMatriz* MatrizDispersa::buscarOCrearColumna(const std::string& ciudadDestino
     if (actual->ciudadDestino == ciudadDestino) {
         return actual;
     }
-    NodoMatriz* nuevaColumna = new NodoMatriz("", ciudadDestino, nullptr);
+    NodoMatriz* nuevaColumna = new NodoMatriz("", ciudadDestino, nullptr, 0);  // Añadimos 0 como distancia por defecto
     nuevaColumna->derecha = actual->derecha;
     actual->derecha = nuevaColumna;
     return nuevaColumna;
 }
 
-void MatrizDispersa::insertar(const std::string& vuelo, const std::string& ciudadDestino, Piloto* piloto) {
+void MatrizDispersa::insertar(const std::string& vuelo, const std::string& ciudadDestino, Piloto* piloto, int distancia) {
     NodoMatriz* fila = buscarOCrearFila(vuelo);
     NodoMatriz* columna = buscarOCrearColumna(ciudadDestino);
-    NodoMatriz* nuevo = new NodoMatriz(vuelo, ciudadDestino, piloto);
+    NodoMatriz* nuevo = new NodoMatriz(vuelo, ciudadDestino, piloto, distancia);
+
+    // Insertar en la fila
     if (fila->derecha == nullptr || fila->derecha->ciudadDestino > ciudadDestino) {
         nuevo->derecha = fila->derecha;
         fila->derecha = nuevo;
@@ -68,6 +72,8 @@ void MatrizDispersa::insertar(const std::string& vuelo, const std::string& ciuda
         nuevo->derecha = actual->derecha;
         actual->derecha = nuevo;
     }
+
+    // Insertar en la columna
     if (columna->abajo == nullptr || columna->abajo->vuelo > vuelo) {
         nuevo->abajo = columna->abajo;
         columna->abajo = nuevo;
@@ -80,7 +86,6 @@ void MatrizDispersa::insertar(const std::string& vuelo, const std::string& ciuda
         actual->abajo = nuevo;
     }
 }
-
 void MatrizDispersa::eliminar(const std::string& vuelo, const std::string& ciudadDestino) {
     NodoMatriz* fila = filas;
     NodoMatriz* prevFila = nullptr;
@@ -141,19 +146,21 @@ void MatrizDispersa::eliminar(const std::string& vuelo, const std::string& ciuda
     }
 }
 
-Piloto* MatrizDispersa::obtener(const std::string& vuelo, const std::string& ciudadDestino) {
+NodoMatriz* MatrizDispersa::obtener(const std::string& vuelo, const std::string& ciudadDestino) {
     NodoMatriz* fila = filas;
-    while (fila != nullptr && fila->vuelo != vuelo) {
+    while (fila != nullptr) {
+        if (fila->vuelo == vuelo || fila->ciudadDestino == ciudadDestino) {
+            NodoMatriz* actual = fila->derecha;
+            while (actual != nullptr) {
+                if (actual->vuelo == vuelo && actual->ciudadDestino == ciudadDestino) {
+                    return actual;
+                }
+                actual = actual->derecha;
+            }
+        }
         fila = fila->abajo;
     }
-    if (fila == nullptr) {
-        return nullptr;
-    }
-    NodoMatriz* actual = fila->derecha;
-    while (actual != nullptr && actual->ciudadDestino != ciudadDestino) {
-        actual = actual->derecha;
-    }
-    return (actual != nullptr) ? actual->piloto : nullptr;
+    return nullptr;
 }
 
 void MatrizDispersa::imprimir() {
@@ -165,6 +172,7 @@ void MatrizDispersa::imprimir() {
             if (actual->piloto != nullptr) {
                 std::cout << ", Piloto: " << actual->piloto->getNombre();
             }
+            std::cout << ", Distancia: " << actual->distancia;
             std::cout << std::endl;
             actual = actual->derecha;
         }
@@ -177,6 +185,8 @@ void MatrizDispersa::generarReporte(const std::string& nombreArchivo) {
     archivo << "digraph MatrizDispersa {\n";
     archivo << "node [shape=record];\n";
     archivo << "raiz [label=\"Raíz\"];\n";
+
+    // Generar nodos de columnas
     NodoMatriz* columnaActual = columnas;
     while (columnaActual != nullptr) {
         archivo << "col_" << columnaActual->ciudadDestino << " [label=\"" << columnaActual->ciudadDestino << "\"];\n";
@@ -186,14 +196,17 @@ void MatrizDispersa::generarReporte(const std::string& nombreArchivo) {
         }
         columnaActual = columnaActual->derecha;
     }
+
+    // Generar nodos de filas y elementos
     NodoMatriz* filaActual = filas;
     while (filaActual != nullptr) {
         archivo << "fila_" << filaActual->vuelo << " [label=\"" << filaActual->vuelo << "\"];\n";
         archivo << "raiz -> fila_" << filaActual->vuelo << ";\n";
         NodoMatriz* elementoActual = filaActual->derecha;
         while (elementoActual != nullptr) {
+            std::string pilotoNombre = (elementoActual->piloto != nullptr) ? elementoActual->piloto->getNombre() : "N/A";
             archivo << "nodo_" << elementoActual->vuelo << "_" << elementoActual->ciudadDestino
-                    << " [label=\"" << elementoActual->piloto->getNombre() << "\"];\n";
+                    << " [label=\"{Piloto: " << pilotoNombre << "|Distancia: " << elementoActual->distancia << "}\"];\n";
             archivo << "fila_" << elementoActual->vuelo << " -> nodo_" << elementoActual->vuelo
                     << "_" << elementoActual->ciudadDestino << ";\n";
             archivo << "col_" << elementoActual->ciudadDestino << " -> nodo_" << elementoActual->vuelo
@@ -205,20 +218,22 @@ void MatrizDispersa::generarReporte(const std::string& nombreArchivo) {
         }
         filaActual = filaActual->abajo;
     }
+
     archivo << "}\n";
     archivo.close();
-    std::string comando = "dot -Tpng " + nombreArchivo + " -o matriz_dispersa.png";
+    std::string comando = "dot -Tpng " + nombreArchivo + " -o matrizVuelos.png";
     system(comando.c_str());
 }
+
 void MatrizDispersa::eliminarPiloto(const std::string& pilotoId) {
     NodoMatriz* fila = filas;
     while (fila != nullptr) {
-        if (fila->piloto->getNumeroDeId() == pilotoId) {
-            NodoMatriz* actual = fila->derecha;
-            while (actual != nullptr) {
-                eliminar(fila->vuelo, actual->ciudadDestino);
-                actual = actual->derecha;
+        NodoMatriz* actual = fila->derecha;
+        while (actual != nullptr) {
+            if (actual->piloto != nullptr && actual->piloto->getNumeroDeId() == pilotoId) {
+                actual->piloto = nullptr;  // Solo eliminamos la referencia al piloto, no el nodo completo
             }
+            actual = actual->derecha;
         }
         fila = fila->abajo;
     }

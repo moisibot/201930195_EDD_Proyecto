@@ -88,13 +88,11 @@ void ArbolB::insertarNoLleno(NodoB* nodo, const Avion& avion) {
         insertarNoLleno(nodo->hijos[i], avion);
     }
 }
-
 void ArbolB::imprimirArbol() {
     if (raiz != nullptr) {
         imprimirNodo(raiz, 0);
     }
 }
-
 void ArbolB::imprimirNodo(NodoB* nodo, int nivel) {
     std::cout << "Nivel " << nivel << ": ";
     for (int i = 0; i < nodo->numClaves; i++) {
@@ -124,7 +122,6 @@ void ArbolB::generarReporte(const std::string& nombreArchivo) {
     std::string comando = "dot -Tpng " + nombreArchivo + " -o arbol_b_disponibles.png";
     system(comando.c_str());
 }
-
 void ArbolB::generarReporteRecursivo(NodoB* nodo, std::ofstream& archivo) {
     if (nodo == nullptr) return;
     archivo << "nodo" << nodo << " [label=\"";
@@ -142,10 +139,10 @@ void ArbolB::generarReporteRecursivo(NodoB* nodo, std::ofstream& archivo) {
         }
     }
 }
+
 Avion* ArbolB::buscarYEliminar(const std::string& numeroRegistro) {
     return buscarYEliminarRecursivo(raiz, numeroRegistro);
 }
-
 Avion* ArbolB::buscarYEliminarRecursivo(NodoB*& nodo, const std::string& numeroRegistro) {
     if (nodo == nullptr) return nullptr;
     int i = 0;

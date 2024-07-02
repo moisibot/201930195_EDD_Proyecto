@@ -184,7 +184,7 @@ void Grafo::imprimirRutasDesde(const std::string& ciudad) {
 }
 
 void Grafo::dijkstra(const std::string& origen, const std::string& destino) {
-    const int MAX_CIUDADES = 100;
+    const int MAX_CIUDADES = 10000;
     int distancias[MAX_CIUDADES];
     bool visitados[MAX_CIUDADES] = { false };
     NodoVertice* previos[MAX_CIUDADES] = { nullptr };

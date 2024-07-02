@@ -1,16 +1,13 @@
 #include "TablaHash.h"
 #include <iostream>
 #include <fstream>
-
 NodoHash::NodoHash(const Piloto& piloto) : dato(piloto), siguiente(nullptr) {}
-
 TablaHash::TablaHash() : tamanio(TAMANO_INICIAL), elementos(0) {
     tabla = new NodoHash*[tamanio];
     for (int i = 0; i < tamanio; i++) {
         tabla[i] = nullptr;
     }
 }
-
 TablaHash::~TablaHash() {
     for (int i = 0; i < tamanio; i++) {
         NodoHash* actual = tabla[i];
@@ -45,7 +42,6 @@ void TablaHash::insertar(const Piloto& piloto) {
     tabla[indice] = nuevoNodo;
     elementos++;
 }
-
 bool TablaHash::eliminar(const std::string& id) {
     int indice = funcionHash(id);
     NodoHash* actual = tabla[indice];
@@ -66,7 +62,6 @@ bool TablaHash::eliminar(const std::string& id) {
     elementos--;
     return true;
 }
-
 Piloto* TablaHash::buscar(const std::string& id) {
     int indice = funcionHash(id);
     NodoHash* actual = tabla[indice];
@@ -78,7 +73,6 @@ Piloto* TablaHash::buscar(const std::string& id) {
     }
     return nullptr;
 }
-
 void TablaHash::redimensionar() {
     int nuevoTamanio = tamanio;
     NodoHash** nuevaTabla = new NodoHash*[nuevoTamanio];
@@ -120,8 +114,7 @@ void TablaHash::generarReporte(const std::string& nombreArchivo) const {
         archivo << "bucket" << i << " [label=\"" << i << "\"];\n";
         NodoHash* actual = tabla[i];
         while (actual != nullptr) {
-            archivo << "nodo" << actual << " [label=\"" << actual->dato.getNombre()
-                    << "\\n" << actual->dato.getNumeroDeId() << "\"];\n";
+            archivo << "nodo" << actual << " [label=\"" << actual->dato.getNumeroDeId() << "\"];\n";
             archivo << "bucket" << i << " -> nodo" << actual << ";\n";
             if (actual->siguiente != nullptr) {
                 archivo << "nodo" << actual << " -> nodo" << actual->siguiente << ";\n";

@@ -11,7 +11,7 @@
 
 using json = nlohmann::json;
 
-void cargarAviones(const std::string& nombreArchivo, ArbolB& arbolAviones, ListaCircularDoble& listaMantenimiento) {
+void cargarAviones(const std::string& nombreArchivo, ArbolB& arbolAviones, ListaCircularDoble& listaMantenimiento, MatrizDispersa& matrizVuelos) {
     std::ifstream archivo(nombreArchivo);
     if (!archivo.is_open()) {
         std::cerr << "No se pudo abrir el archivo " << nombreArchivo << std::endl;
@@ -32,13 +32,14 @@ void cargarAviones(const std::string& nombreArchivo, ArbolB& arbolAviones, Lista
         );
         if (avion.getEstado() == "Disponible") {
             arbolAviones.insertar(avion);
+            matrizVuelos.insertar(avion.getVuelo(), avion.getCiudadDestino(), nullptr, 0);
         } else if (avion.getEstado() == "Mantenimiento") {
             listaMantenimiento.insertar(avion);
         }
     }
 }
 
-void cargarPilotos(const std::string& nombreArchivo, ArbolBinarioBusqueda& arbolPilotos, TablaHash& tablaPilotos) {
+void cargarPilotos(const std::string& nombreArchivo, ArbolBinarioBusqueda& arbolPilotos, TablaHash& tablaPilotos, MatrizDispersa& matrizVuelos) {
     std::ifstream archivo(nombreArchivo);
     if (!archivo.is_open()) {
         std::cerr << "No se pudo abrir el archivo " << nombreArchivo << std::endl;
@@ -47,7 +48,7 @@ void cargarPilotos(const std::string& nombreArchivo, ArbolBinarioBusqueda& arbol
     std::cout << "Archivo de pilotos abierto correctamente." << std::endl;
     json jsonData;
     archivo >> jsonData;
-    for (const auto& pilotoJson : jsonData) {
+    for (const auto &pilotoJson: jsonData) {
         Piloto piloto(
                 pilotoJson["nombre"],
                 pilotoJson["nacionalidad"],
@@ -58,11 +59,18 @@ void cargarPilotos(const std::string& nombreArchivo, ArbolBinarioBusqueda& arbol
         );
         arbolPilotos.insertar(piloto);
         tablaPilotos.insertar(piloto);
+        Piloto *pilotoPtr = tablaPilotos.buscar(piloto.getNumeroDeId());
+        if (pilotoPtr) {
+            NodoMatriz *nodo = matrizVuelos.obtener(piloto.getVuelo(), "");
+            if (nodo) {
+                nodo->piloto = pilotoPtr;
+            }
+        }
+        std::cout << "Pilotos cargados exitosamente." << std::endl;
     }
-    std::cout << "Pilotos cargados exitosamente." << std::endl;
 }
 
-void cargarRutas(const std::string& nombreArchivo, Grafo& grafoRutas) {
+void cargarRutas(const std::string& nombreArchivo, Grafo& grafoRutas, MatrizDispersa& matrizVuelos) {
     std::ifstream archivo(nombreArchivo);
     if (!archivo.is_open()) {
         std::cerr << "No se pudo abrir el archivo " << nombreArchivo << std::endl;
@@ -79,8 +87,12 @@ void cargarRutas(const std::string& nombreArchivo, Grafo& grafoRutas) {
         int distancia = std::stoi(distanciaStr);
         Ruta ruta(origen, destino, distancia);
         grafoRutas.agregarRuta(ruta);
-        Ruta rutaInversa(destino, origen, distancia);
-        grafoRutas.agregarRuta(rutaInversa);
+       // Ruta rutaInversa(destino, origen, distancia);
+        //grafoRutas.agregarRuta(rutaInversa);
+        NodoMatriz* nodo = matrizVuelos.obtener("", destino);
+        if (nodo) {
+            nodo->distancia = distancia;
+        }
     }
     archivo.close();
     std::cout << "Carga de rutas completada." << std::endl;
@@ -96,62 +108,63 @@ void procesarMovimientos(const std::string& nombreArchivo, ArbolB& arbolAviones,
 
     std::string linea;
     while (std::getline(archivo, linea)) {
+        // Eliminar espacios en blanco al inicio y al final de la línea
         linea.erase(0, linea.find_first_not_of(" \t"));
         linea.erase(linea.find_last_not_of(" \t;") + 1);
-        std::istringstream iss(linea);
-        std::string comando, accion, numeroRegistro;
 
-        std::getline(iss, comando, ',');
-        if (comando == "MantenimientoAviones") {
-            std::getline(iss, accion, ',');
-            std::getline(iss, numeroRegistro);
-            accion.erase(0, accion.find_first_not_of(" \t"));
-            accion.erase(accion.find_last_not_of(" \t") + 1);
+        if (linea.find("MantenimientoAviones,Ingreso,") == 0) {
+            std::cout << "Comando de ingreso de aviones detectado." << std::endl;
+            std::string numeroRegistro = linea.substr(29);
             numeroRegistro.erase(0, numeroRegistro.find_first_not_of(" \t"));
-            numeroRegistro.erase(numeroRegistro.find_last_not_of(" \t") + 1);
+            numeroRegistro.erase(numeroRegistro.find_last_not_of(" \t;") + 1);
 
-            if (accion == "Ingreso") {
-                Avion* avion = arbolAviones.buscarYEliminar(numeroRegistro);
-                if (avion) {
-                    avion->setEstado("Mantenimiento");
-                    listaMantenimiento.insertar(*avion);
-                    delete avion;
-                    std::cout << "Avión " << numeroRegistro << " ingresado a mantenimiento." << std::endl;
-                } else {
-                    std::cout << "Avión " << numeroRegistro << " no encontrado para ingreso a mantenimiento." << std::endl;
-                }
-            } else if (accion == "Salida") {
-                Avion* avion = listaMantenimiento.buscarYEliminar(numeroRegistro);
-                if (avion) {
-                    avion->setEstado("Disponible");
-                    arbolAviones.insertar(*avion);
-                    delete avion;
-                    std::cout << "Avión " << numeroRegistro << " salió de mantenimiento." << std::endl;
-                } else {
-                    std::cout << "Avión " << numeroRegistro << " no encontrado en mantenimiento." << std::endl;
-                }
+            Avion* avion = arbolAviones.buscarYEliminar(numeroRegistro);
+            if (avion) {
+                std::cout << "Avión " << numeroRegistro << " encontrado en ArbolB. Moviendo a mantenimiento." << std::endl;
+                avion->setEstado("Mantenimiento");
+                listaMantenimiento.insertar(*avion);
+                delete avion;
+            } else if (listaMantenimiento.buscarYEliminar(numeroRegistro)) {
+                std::cout << "El avión " << numeroRegistro << " ya está en mantenimiento." << std::endl;
+            } else {
+                std::cout << "El avión " << numeroRegistro << " no se encontró en la lista de disponibles ni en mantenimiento." << std::endl;
             }
-        } else if (comando.find("DarDeBaja") != std::string::npos) {
-            size_t inicio = comando.find('(') + 1;
-            size_t fin = comando.find(')');
+        } else if (linea.find("MantenimientoAviones,Salida,") == 0) {
+            std::cout << "Comando de salida de aviones detectado." << std::endl;
+            std::string numeroRegistro = linea.substr(28);
+            numeroRegistro.erase(0, numeroRegistro.find_first_not_of(" \t"));
+            numeroRegistro.erase(numeroRegistro.find_last_not_of(" \t;") + 1);
+
+            Avion* avion = listaMantenimiento.buscarYEliminar(numeroRegistro);
+            if (avion) {
+                std::cout << "Avión " << numeroRegistro << " encontrado en ListaCircularDoble. Moviendo a disponibles." << std::endl;
+                avion->setEstado("Disponible");
+                arbolAviones.insertar(*avion);
+                delete avion;
+            } else if (arbolAviones.buscarYEliminar(numeroRegistro)) {
+                std::cout << "El avión " << numeroRegistro << " ya está disponible." << std::endl;
+            } else {
+                std::cout << "El avión " << numeroRegistro << " no se encontró en mantenimiento ni en disponibles." << std::endl;
+            }
+        } else if (linea.find("DarDeBaja") != std::string::npos) {
+            size_t inicio = linea.find('(') + 1;
+            size_t fin = linea.find(')');
             if (inicio != std::string::npos && fin != std::string::npos && inicio < fin) {
-                numeroRegistro = comando.substr(inicio, fin - inicio);
+                std::string numeroRegistro = linea.substr(inicio, fin - inicio);
                 std::cout << "Dando de baja al piloto: " << numeroRegistro << std::endl;
                 arbolPilotos.eliminar(numeroRegistro);
                 matrizVuelos.eliminarPiloto(numeroRegistro);
                 tablaPilotos.eliminar(numeroRegistro);
-
                 std::cout << "Piloto " << numeroRegistro << " dado de baja y eliminado de todas las estructuras." << std::endl;
             } else {
-                std::cout << "Formato inválido para DarDeBaja: " << comando << std::endl;
+                std::cout << "Formato inválido para DarDeBaja: " << linea << std::endl;
             }
         } else {
-            std::cout << "Comando no reconocido: " << comando << std::endl;
+            std::cout << "Comando no reconocido: " << linea << std::endl;
         }
     }
     archivo.close();
 }
-
 void generarImagenDesdeArchivoDot(const std::string& archivoEntrada, const std::string& archivoSalida, const std::string& formato) {
     std::string comando = "dot -T" + formato + " -o " + archivoSalida + " " + archivoEntrada;
     int resultado = std::system(comando.c_str());
@@ -194,21 +207,6 @@ void mostrarMenuRecorrido(ArbolBinarioBusqueda& arbolPilotos) {
     } while (opcion != 0);
 }
 
-std::string obtenerEntradaValida(const std::string& mensaje) {
-    std::string entrada;
-    while (true) {
-        std::cout << mensaje;
-        std::getline(std::cin >> std::ws, entrada);
-        entrada.erase(0, entrada.find_first_not_of(" \t\n\r\f\v"));
-        entrada.erase(entrada.find_last_not_of(" \t\n\r\f\v") + 1);
-        if (!entrada.empty()) {
-            return entrada;
-        }
-        std::cout << "Entrada inválida. Por favor, intente de nuevo." << std::endl;
-    }
-}
-
-
 void mostrarMenu() {
     std::cout << "=== Sistema de Gestión de Aeropuerto ===" << std::endl;
     std::cout << "1. Cargar aviones" << std::endl;
@@ -224,7 +222,7 @@ void mostrarMenu() {
 }
 
 int main() {
-    ArbolB arbolAviones(5);
+    ArbolB arbolAviones(4);
     ArbolBinarioBusqueda arbol;
     ListaCircularDoble listaMantenimiento;
     ArbolBinarioBusqueda arbolPilotos;
@@ -241,15 +239,15 @@ int main() {
         switch(opcion) {
             case 1:
                 cargarAviones("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/aviones.json", arbolAviones,
-                              listaMantenimiento);
+                              listaMantenimiento, matrizVuelos);
                 break;
             case 2:
                 cargarPilotos("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/pilotos.json", arbolPilotos,
-                              tablaPilotos);
+                              tablaPilotos, matrizVuelos);
                 break;3;
             case 3:
-                cargarRutas("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/rutas.txt", grafoRutas);
-                grafoRutas.imprimirGrafo();
+                cargarRutas("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/rutas.txt", grafoRutas, matrizVuelos);
+                //grafoRutas.imprimirGrafo();
                 break;
             case 4:
                 procesarMovimientos("/home/moisibot/CLionProjects/Proyecto2ControlAeropuerto/movimientos.txt",
@@ -301,8 +299,9 @@ int main() {
                             std::cout << "Reporte de la tabla hash de pilotos generado como 'grafoRutas.png'" << std::endl;
                             break;
                         case 6:
+                            matrizVuelos.imprimir();
                             matrizVuelos.generarReporte("matrizVuelos.dot");
-                            std::cout << "Reporte de la tabla hash de pilotos generado como 'matrizVuelos.png'" << std::endl;
+                            std::cout << "Reporte de matriz vuelos generado como 'matrizVuelos.png'" << std::endl;
                             break;
                         case 7:
                             std::cout << "Regresando al menú principal..." << std::endl;
