@@ -66,8 +66,8 @@ void cargarPilotos(const std::string& nombreArchivo, ArbolBinarioBusqueda& arbol
                 nodo->piloto = pilotoPtr;
             }
         }
-        std::cout << "Pilotos cargados exitosamente." << std::endl;
-    }
+    } std::cout << "Pilotos cargados exitosamente." << std::endl;
+
 }
 
 void cargarRutas(const std::string& nombreArchivo, Grafo& grafoRutas, MatrizDispersa& matrizVuelos) {

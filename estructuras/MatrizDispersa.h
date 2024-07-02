@@ -6,6 +6,7 @@
 
 class NodoMatriz {
 public:
+    std::string identificador;
     std::string vuelo;
     std::string ciudadDestino;
     Piloto* piloto;
